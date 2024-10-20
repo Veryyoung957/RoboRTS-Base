@@ -66,19 +66,19 @@ class RefereeSystem: public Module {
   void RobotShootCallback(const std::shared_ptr<roborts_sdk::cmd_shoot_data> raw_robot_shoot);
 
   //! ros node handler
-  ros::NodeHandle ros_nh_;
+  //ros::NodeHandle ros_nh_;
   //! ros subscriber
-  ros::Publisher ros_game_status_pub_;
-  ros::Publisher ros_game_result_pub_ ;
-  ros::Publisher ros_game_robot_hp_pub_;
-  ros::Publisher ros_game_robot_bullet_pub_;
-  ros::Publisher ros_game_zone_array_pub_;
-  ros::Publisher ros_game_lurk_status_pub_;
+  rclcpp::Publisher<roborts_msgs::msg::GameStatus>::SharedPtr ros_game_status_pub_;
+  rclcpp::Publisher<roborts_msgs::msg::GameResult>::SharedPtr ros_game_result_pub_;
+  rclcpp::Publisher<roborts_msgs::msg::GameRobotHP>::SharedPtr ros_game_robot_hp_pub_;
+  rclcpp::Publisher<roborts_msgs::msg::GameRobotBullet>::SharedPtr ros_game_robot_bullet_pub_;
+  rclcpp::Publisher<roborts_msgs::msg::GameZoneArray>::SharedPtr ros_game_zone_array_pub_;
+  rclcpp::Publisher<roborts_msgs::msg::LurkStatus>::SharedPtr ros_game_lurk_status_pub_;
 
-  ros::Publisher ros_robot_status_pub_;
-  ros::Publisher ros_robot_heat_pub_;
-  ros::Publisher ros_robot_damage_pub_;
-  ros::Publisher ros_robot_shoot_pub_;
+  rclcpp::Publisher<roborts_msgs::msg::RobotStatus>::SharedPtr ros_robot_status_pub_;
+  rclcpp::Publisher<roborts_msgs::msg::RobotHeat>::SharedPtr ros_robot_heat_pub_;
+  rclcpp::Publisher<roborts_msgs::msg::RobotDamage>::SharedPtr ros_robot_damage_pub_;
+  rclcpp::Publisher<roborts_msgs::msg::RobotShoot>::SharedPtr ros_robot_shoot_pub_;
 
 };
 REGISTER_MODULE(Module, "referee_system", RefereeSystem, std::shared_ptr<roborts_sdk::Handle>);

@@ -103,7 +103,7 @@ class ModuleFactory
    * @param args Parameter pack
    * @return The base class unique_ptr that point to Module corresponding to the module name.
    */
-  static std::unique_ptr<ModuleBase> CreateModule(const std::string module_name,
+  static std::shared_ptr<ModuleBase> CreateModule(const std::string module_name,
                                                         Args... args) {
     ModuleHash& module_hash = GetModuleHash();
 

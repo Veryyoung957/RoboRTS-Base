@@ -66,13 +66,13 @@ class Chassis: public Module{
    * @brief Chassis speed control callback in ROS
    * @param vel Chassis speed control data
    */
-  void ChassisSpeedCtrlCallback(const geometry_msgs::Twist::ConstPtr &vel);
+  void ChassisSpeedCtrlCallback(const geometry_msgs::msg::Twist::ConstPtr &vel);
 
   /**
    * @brief Chassis speed and acceleration control callback in ROS
    * @param vel_acc Chassis speed and acceleration control data
    */
-  void ChassisSpeedAccCtrlCallback(const roborts_msgs::TwistAccel::ConstPtr &vel_acc);
+  //void ChassisSpeedAccCtrlCallback(const roborts_msgs::TwistAccel::ConstPtr &vel_acc);
 
   //! sdk version client
   std::shared_ptr<roborts_sdk::Client<roborts_sdk::cmd_version_id,
@@ -89,25 +89,25 @@ class Chassis: public Module{
   std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_chassis_spd_acc>> chassis_spd_acc_pub_;
 
   //! ros node handler
-  ros::NodeHandle ros_nh_;
+  //rclcpp::NodeHandle ros_nh_;
   //! ros subscriber for speed control
-  ros::Subscriber ros_sub_cmd_chassis_vel_;
+  rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr ros_sub_cmd_chassis_vel_;
   //! ros subscriber for chassis speed and acceleration control
-  ros::Subscriber ros_sub_cmd_chassis_vel_acc_;
+  //rclcpp::Subscriber ros_sub_cmd_chassis_vel_acc_;
   //! ros publisher for odometry information
-  ros::Publisher ros_odom_pub_;
+  rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr ros_odom_pub_;
   //! ros publisher for uwb information
-  ros::Publisher ros_uwb_pub_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr ros_uwb_pub_;
 
 
   //! ros chassis odometry tf
-  geometry_msgs::TransformStamped odom_tf_;
+  geometry_msgs::msg::TransformStamped odom_tf_;
   //! ros chassis odometry tf broadcaster
-  tf::TransformBroadcaster tf_broadcaster_;
+  std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
   //! ros odometry message
-  nav_msgs::Odometry odom_;
+  nav_msgs::msg::Odometry odom_;
   //! ros uwb message
-  geometry_msgs::PoseStamped uwb_data_;
+  geometry_msgs::msg::PoseStamped uwb_data_;
 };
 REGISTER_MODULE(Module, "chassis", Chassis, std::shared_ptr<roborts_sdk::Handle>);
 }

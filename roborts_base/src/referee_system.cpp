@@ -19,7 +19,7 @@
 
 namespace roborts_base {
 RefereeSystem::RefereeSystem(std::shared_ptr<roborts_sdk::Handle> handle) :
-    Module(handle) {
+    Module("referee",handle) {
   SDK_Init();
   ROS_Init();
 }
@@ -72,51 +72,53 @@ void RefereeSystem::SDK_Init() {
 void RefereeSystem::ROS_Init() {
   //ros publisher
   /**  Game Related  **/
-  ros_game_status_pub_ = ros_nh_.advertise<roborts_msgs::GameStatus>("game_status", 30);
-  ros_game_result_pub_ = ros_nh_.advertise<roborts_msgs::GameResult>("game_result", 30);
-  ros_game_robot_hp_pub_ = ros_nh_.advertise<roborts_msgs::GameRobotHP>("game_robot_hp", 30);
-  ros_game_robot_bullet_pub_ = ros_nh_.advertise<roborts_msgs::GameRobotBullet>("game_robot_bullet", 30);
-  ros_game_zone_array_pub_ = ros_nh_.advertise<roborts_msgs::GameZoneArray>("game_zone_array_status", 30);
-  ros_game_lurk_status_pub_=ros_nh_.advertise<roborts_msgs::LurkStatus>("game_lurk_status",30);
-  /** Robot Related **/
-  ros_robot_status_pub_ = ros_nh_.advertise<roborts_msgs::RobotStatus>("robot_status", 30);
-  ros_robot_heat_pub_ = ros_nh_.advertise<roborts_msgs::RobotHeat>("robot_heat", 30);
-  ros_robot_damage_pub_ = ros_nh_.advertise<roborts_msgs::RobotDamage>("robot_damage", 30);
-  ros_robot_shoot_pub_ = ros_nh_.advertise<roborts_msgs::RobotShoot>("robot_shoot", 30);
+  ros_game_status_pub_ = this->create_publisher<roborts_msgs::msg::GameStatus>("game_status", 30);
+  ros_game_result_pub_ = this->create_publisher<roborts_msgs::msg::GameResult>("game_result", 30);
+  ros_game_robot_hp_pub_ = this->create_publisher<roborts_msgs::msg::GameRobotHP>("game_robot_hp", 30);
+  ros_game_robot_bullet_pub_ = this->create_publisher<roborts_msgs::msg::GameRobotBullet>("game_robot_bullet", 30);
+  ros_game_zone_array_pub_ = this->create_publisher<roborts_msgs::msg::GameZoneArray>("game_zone_array_status", 30);
+  ros_game_lurk_status_pub_ = this->create_publisher<roborts_msgs::msg::LurkStatus>("game_lurk_status", 30);
+
+  // Robot-related publishers
+  ros_robot_status_pub_ = this->create_publisher<roborts_msgs::msg::RobotStatus>("robot_status", 30);
+  ros_robot_heat_pub_ = this->create_publisher<roborts_msgs::msg::RobotHeat>("robot_heat", 30);
+  ros_robot_damage_pub_ = this->create_publisher<roborts_msgs::msg::RobotDamage>("robot_damage", 30);
+  ros_robot_shoot_pub_ = this->create_publisher<roborts_msgs::msg::RobotShoot>("robot_shoot", 30);
+
 }
 
 void RefereeSystem::GameStatusCallback(const std::shared_ptr<roborts_sdk::cmd_game_status> raw_game_status){
-  roborts_msgs::GameStatus game_status;
-  ROS_ASSERT(raw_game_status->game_type == 3);
+  roborts_msgs::msg::GameStatus game_status;
+  assert(raw_game_status->game_type == 3);
   game_status.game_status    = raw_game_status->game_progress;
   game_status.remaining_time = raw_game_status->stage_remain_time;
-  ros_game_status_pub_.publish(game_status);
+  ros_game_status_pub_->publish(game_status);
 }
 
 void RefereeSystem::GameResultCallback(const std::shared_ptr<roborts_sdk::cmd_game_result> raw_game_result){
-  roborts_msgs::GameResult game_result;
+  roborts_msgs::msg::GameResult game_result;
   game_result.result = raw_game_result->winner;
-  ros_game_result_pub_.publish(game_result);
+  ros_game_result_pub_->publish(game_result);
 }
 
 void RefereeSystem::GameRobotHPCallback(const std::shared_ptr<roborts_sdk::cmd_game_robot_HP> raw_game_robot_hp){
-  roborts_msgs::GameRobotHP game_robot_hp;
+  roborts_msgs::msg::GameRobotHP game_robot_hp;
   game_robot_hp.red1  = raw_game_robot_hp->red_1_robot_HP;
   game_robot_hp.red2  = raw_game_robot_hp->red_2_robot_HP;
   game_robot_hp.blue1 = raw_game_robot_hp->blue_1_robot_HP;
   game_robot_hp.blue2 = raw_game_robot_hp->blue_2_robot_HP;
-  ros_game_robot_hp_pub_.publish(game_robot_hp);
+  ros_game_robot_hp_pub_->publish(game_robot_hp);
 }
 
 void RefereeSystem::GameEventCallback(const std::shared_ptr<roborts_sdk::cmd_game_event> raw_game_event){
-  roborts_msgs::GameRobotBullet game_robot_bullet;
+  roborts_msgs::msg::GameRobotBullet game_robot_bullet;
   game_robot_bullet.red1  = raw_game_event->red1_bullet_left;
   game_robot_bullet.red2  = raw_game_event->red2_bullet_left;
   game_robot_bullet.blue1 = raw_game_event->blue1_bullet_left;
   game_robot_bullet.blue2 = raw_game_event->blue2_bullet_left;
-  ros_game_robot_bullet_pub_.publish(game_robot_bullet);
+  ros_game_robot_bullet_pub_->publish(game_robot_bullet);
 
-  roborts_msgs::GameZoneArray game_zone_array;
+  roborts_msgs::msg::GameZoneArray game_zone_array;
   game_zone_array.zone[0].type   = raw_game_event->F1_zone_buff_debuff_status;
   game_zone_array.zone[0].active = bool(raw_game_event->F1_zone_status);
   game_zone_array.zone[1].type   = raw_game_event->F2_zone_buff_debuff_status;
@@ -130,21 +132,21 @@ void RefereeSystem::GameEventCallback(const std::shared_ptr<roborts_sdk::cmd_gam
   game_zone_array.zone[5].type   = raw_game_event->F6_zone_buff_debuff_status;
   game_zone_array.zone[5].active = bool(raw_game_event->F6_zone_status);
   
-  ros_game_zone_array_pub_.publish(game_zone_array);
+  ros_game_zone_array_pub_->publish(game_zone_array);
 
-roborts_msgs::LurkStatus game_lurk_status;
+roborts_msgs::msg::LurkStatus game_lurk_status;
 game_lurk_status.lurk_mode = raw_game_event->lurk_mode;
-ros_game_lurk_status_pub_.publish(game_lurk_status);
+ros_game_lurk_status_pub_->publish(game_lurk_status);
 
 }
 
 void RefereeSystem::RobotStatusCallback(const std::shared_ptr<roborts_sdk::cmd_game_robot_status> raw_robot_status){
-  roborts_msgs::RobotStatus robot_status;
+  roborts_msgs::msg::RobotStatus robot_status;
 
   if ( raw_robot_status->robot_id != 1 && raw_robot_status->robot_id != 2 && 
        raw_robot_status->robot_id != 101 && raw_robot_status->robot_id != 102 ){
 
-    ROS_WARN("For AI challenge, "
+    RCLCPP_WARN(this->get_logger(),"For AI challenge, "
              "please set robot id to Blue1/2 or Red1/2 in the referee system main control module, "
              "currently the id is %u", robot_status.id);
   }  
@@ -160,32 +162,32 @@ void RefereeSystem::RobotStatusCallback(const std::shared_ptr<roborts_sdk::cmd_g
   robot_status.chassis_enable = bool(raw_robot_status->mains_power_chassis_output);
   robot_status.gimbal_enable = bool(raw_robot_status->mains_power_gimbal_output);
   robot_status.shooter_enable = bool(raw_robot_status->mains_power_shooter_output);
-  ros_robot_status_pub_.publish(robot_status);
+  ros_robot_status_pub_->publish(robot_status);
 }
 
 void RefereeSystem::RobotHeatCallback(const std::shared_ptr<roborts_sdk::cmd_power_heat_data> raw_robot_heat){
-  roborts_msgs::RobotHeat robot_heat;
+  roborts_msgs::msg::RobotHeat robot_heat;
   robot_heat.chassis_volt = raw_robot_heat->chassis_volt;
   robot_heat.chassis_current = raw_robot_heat->chassis_current;
   robot_heat.chassis_power = raw_robot_heat->chassis_power;
   robot_heat.chassis_power_buffer = raw_robot_heat->chassis_power_buffer;
   robot_heat.shooter_heat = raw_robot_heat->shooter_id1_17mm_cooling_heat;
-  ros_robot_heat_pub_.publish(robot_heat);
+  ros_robot_heat_pub_->publish(robot_heat);
 }
 
 void RefereeSystem::RobotDamageCallback(const std::shared_ptr<roborts_sdk::cmd_robot_hurt> raw_robot_damage){
-  roborts_msgs::RobotDamage robot_damage;
+  roborts_msgs::msg::RobotDamage robot_damage;
   robot_damage.damage_type = raw_robot_damage->hurt_type;
   robot_damage.damage_source = raw_robot_damage->armor_id;
-  ros_robot_damage_pub_.publish(robot_damage);
+  ros_robot_damage_pub_->publish(robot_damage);
 }
 
 void RefereeSystem::RobotShootCallback(const std::shared_ptr<roborts_sdk::cmd_shoot_data> raw_robot_shoot){
-  roborts_msgs::RobotShoot robot_shoot;
-  ROS_ASSERT(raw_robot_shoot->bullet_type == 1);
-  ROS_ASSERT(raw_robot_shoot->shooter_id == 1);
+  roborts_msgs::msg::RobotShoot robot_shoot;
+  assert(raw_robot_shoot->bullet_type == 1);
+  assert(raw_robot_shoot->shooter_id == 1);
   robot_shoot.frequency = raw_robot_shoot->bullet_freq;
   robot_shoot.speed = raw_robot_shoot->bullet_speed;
-  ros_robot_shoot_pub_.publish(robot_shoot);
+  ros_robot_shoot_pub_->publish(robot_shoot);
 }
 }

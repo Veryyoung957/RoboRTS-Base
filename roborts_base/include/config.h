@@ -18,19 +18,29 @@
 #ifndef ROBORTS_BASE_CONFIG_H
 #define ROBORTS_BASE_CONFIG_H
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 namespace roborts_base{
 
-struct Config {
-  void GetParam() {
-    ros::NodeHandle nh;
-    nh.param<std::string>("serial_port", serial_port, "/dev/ttyACM0");
-    nh.param<std::vector<std::string>>("load_module", load_module,
+struct Config : public rclcpp::Node {
+  Config() : Node("config"){
+    this->declare_parameter("serial_port", "/dev/ttyACM0");
+    this->declare_parameter<std::vector<std::string>>("load_module", 
                                         {"chassis",
                                          "gimbal",
                                          "referee_system"});
+    load_module = {"chassis",
+                    "gimbal",
+                    "referee_system"};
+    serial_port = this->get_parameter("serial_port").as_string();
   }
+  // void GetParam() {
+  //   this->declare_parameter<std::string>("serial_port", "/dev/ttyACM0");
+  //   this->declare_parameter<std::vector<std::string>>("load_module", 
+  //                                       {"chassis",
+  //                                        "gimbal",
+  //                                        "referee_system"});
+  // }
   std::string serial_port;
   std::vector<std::string> load_module;
 };

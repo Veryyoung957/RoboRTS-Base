@@ -56,23 +56,23 @@ class Gimbal: public Module {
    * @brief Gimbal angle control callback in ROS
    * @param msg Gimbal angle control data
    */
-  void GimbalAngleCtrlCallback(const roborts_msgs::GimbalAngle::ConstPtr &msg);
+  void GimbalAngleCtrlCallback(const roborts_msgs::msg::GimbalAngle::ConstPtr &msg);
   /**
    * @brief Control friction wheel service callback in ROS
    * @param req Friction wheel control data as request
    * @param res Control result as response
    * @return True if success
    */
-  bool CtrlFricWheelService(roborts_msgs::FricWhl::Request &req,
-                            roborts_msgs::FricWhl::Response &res);
+  bool CtrlFricWheelService(const std::shared_ptr<roborts_msgs::srv::FricWhl::Request> &req,
+                                    std::shared_ptr<roborts_msgs::srv::FricWhl::Response> &res);
   /**
    * @brief Control shoot service callback in ROS
    * @param req Shoot control data as request
    * @param res Control result as response
    * @return True if success
    */
-  bool CtrlShootService(roborts_msgs::ShootCmd::Request &req,
-                        roborts_msgs::ShootCmd::Response &res);
+  void CtrlShootService(const std::shared_ptr<roborts_msgs::srv::ShootCmd::Request> &req,
+                        std::shared_ptr<roborts_msgs::srv::ShootCmd::Response> &res);
 
   //! sdk version client
   std::shared_ptr<roborts_sdk::Client<roborts_sdk::cmd_version_id,
@@ -92,17 +92,17 @@ class Gimbal: public Module {
   std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_shoot_info>>       gimbal_shoot_pub_;
 
   //! ros node handler
-  ros::NodeHandle    ros_nh_;
+  //rclcpp::NodeHandle    ros_nh_;
   //! ros subscriber for gimbal angle control
-  ros::Subscriber    ros_sub_cmd_gimbal_angle_;
+  rclcpp::Subscription<roborts_msgs::msg::GimbalAngle>::SharedPtr    ros_sub_cmd_gimbal_angle_;
   //! ros service server for friction wheel control
-  ros::ServiceServer ros_ctrl_fric_wheel_srv_;
+  rclcpp::Service<roborts_msgs::srv::FricWhl>::SharedPtr ros_ctrl_fric_wheel_srv_;
   //! ros service server for gimbal shoot control
-  ros::ServiceServer ros_ctrl_shoot_srv_;
+  rclcpp::Service<roborts_msgs::srv::ShootCmd>::SharedPtr ros_ctrl_shoot_srv_;
   //! ros gimbal tf
-  geometry_msgs::TransformStamped gimbal_tf_;
+  geometry_msgs::msg::TransformStamped gimbal_tf_;
   //! ros gimbal tf broadcaster
-  tf::TransformBroadcaster        tf_broadcaster_;
+  std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
 };
 REGISTER_MODULE(Module, "gimbal", Gimbal, std::shared_ptr<roborts_sdk::Handle>);

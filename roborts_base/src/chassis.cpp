@@ -19,7 +19,7 @@
 
 namespace roborts_base{
 Chassis::Chassis(std::shared_ptr<roborts_sdk::Handle> handle):
-    Module(handle){
+    Module("chassis",handle){
   SDK_Init();
   ROS_Init();
 }
@@ -37,9 +37,9 @@ void Chassis::SDK_Init(){
   version_cmd.version_id=0;
   auto version = std::make_shared<roborts_sdk::cmd_version_id>(version_cmd);
   verison_client_->AsyncSendRequest(version,
-                                    [](roborts_sdk::Client<roborts_sdk::cmd_version_id,
+                                    [this](roborts_sdk::Client<roborts_sdk::cmd_version_id,
                                                            roborts_sdk::cmd_version_id>::SharedFuture future) {
-                                      ROS_INFO("Chassis Firmware Version: %d.%d.%d.%d",
+                                      RCLCPP_INFO(this->get_logger(),"Chassis Firmware Version: %d.%d.%d.%d",
                                                int(future.get()->version_id>>24&0xFF),
                                                int(future.get()->version_id>>16&0xFF),
                                                int(future.get()->version_id>>8&0xFF),
@@ -63,7 +63,7 @@ void Chassis::SDK_Init(){
   heartbeat_thread_ = std::thread([this]{
                                     roborts_sdk::cmd_heartbeat heartbeat;
                                     heartbeat.heartbeat=0;
-                                    while(ros::ok()){
+                                    while(rclcpp::ok()){
                                       heartbeat_pub_->Publish(heartbeat);
                                       std::this_thread::sleep_for(std::chrono::milliseconds(300));
                                     }
@@ -71,12 +71,16 @@ void Chassis::SDK_Init(){
   );
 }
 void Chassis::ROS_Init(){
-  //ros publisher
-  ros_odom_pub_ = ros_nh_.advertise<nav_msgs::Odometry>("odom", 30);
-  ros_uwb_pub_ = ros_nh_.advertise<geometry_msgs::PoseStamped>("uwb", 30);
-  //ros subscriber
-  ros_sub_cmd_chassis_vel_ = ros_nh_.subscribe("cmd_vel", 1, &Chassis::ChassisSpeedCtrlCallback, this);
-  ros_sub_cmd_chassis_vel_acc_ = ros_nh_.subscribe("cmd_vel_acc", 1, &Chassis::ChassisSpeedAccCtrlCallback, this);
+  // Publisher
+        ros_odom_pub_ = this->create_publisher<nav_msgs::msg::Odometry>("odom", rclcpp::SystemDefaultsQoS());
+        ros_uwb_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("uwb", rclcpp::SystemDefaultsQoS());
+
+        // Subscriber
+        ros_sub_cmd_chassis_vel_ = this->create_subscription<geometry_msgs::msg::Twist>(
+            "cmd_vel", rclcpp::SystemDefaultsQoS(), std::bind(&Chassis::ChassisSpeedCtrlCallback, this, std::placeholders::_1));
+        
+        // ros_sub_cmd_chassis_vel_acc_ = this->create_subscription<geometry_msgs::msg::Twist>(
+        //     "cmd_vel_acc", rclcpp::SystemDefaultsQoS(), std::bind(&Chassis::ChassisSpeedAccCtrlCallback, this, std::placeholders::_1));
 
 
   //ros_message_init
@@ -90,39 +94,43 @@ void Chassis::ROS_Init(){
 }
 void Chassis::ChassisInfoCallback(const std::shared_ptr<roborts_sdk::cmd_chassis_info> chassis_info){
 
-  ros::Time current_time = ros::Time::now();
+  rclcpp::Time current_time = this->get_clock()->now();
   odom_.header.stamp = current_time;
   odom_.pose.pose.position.x = chassis_info->position_x_mm/1000.;
   odom_.pose.pose.position.y = chassis_info->position_y_mm/1000.;
   odom_.pose.pose.position.z = 0.0;
-  geometry_msgs::Quaternion q = tf::createQuaternionMsgFromYaw(chassis_info->gyro_angle / 1800.0 * M_PI);
-  odom_.pose.pose.orientation = q;
+  //geometry_msgs::msg::Quaternion q = tf2::createQuaternionMsgFromYaw(chassis_info->gyro_angle / 1800.0 * M_PI);
+  tf2::Quaternion q;
+  q.setRPY(0, 0, chassis_info->gyro_angle / 1800.0 * M_PI);
+  odom_.pose.pose.orientation = tf2::toMsg(q);
   odom_.twist.twist.linear.x = chassis_info->v_x_mm / 1000.0;
   odom_.twist.twist.linear.y = chassis_info->v_y_mm / 1000.0;
   odom_.twist.twist.angular.z = chassis_info->gyro_rate / 1800.0 * M_PI;
-  ros_odom_pub_.publish(odom_);
+  ros_odom_pub_->publish(odom_);
 
   odom_tf_.header.stamp = current_time;
   odom_tf_.transform.translation.x = chassis_info->position_x_mm/1000.;
   odom_tf_.transform.translation.y = chassis_info->position_y_mm/1000.;
 
   odom_tf_.transform.translation.z = 0.0;
-  odom_tf_.transform.rotation = q;
-  tf_broadcaster_.sendTransform(odom_tf_);
+  odom_tf_.transform.rotation = tf2::toMsg(q);
+  tf_broadcaster_->sendTransform(odom_tf_);
 
 }
 void Chassis::UWBInfoCallback(const std::shared_ptr<roborts_sdk::cmd_uwb_info> uwb_info){
 
-  uwb_data_.header.stamp = ros::Time::now();
+  uwb_data_.header.stamp = this->get_clock()->now();
   uwb_data_.pose.position.x = ((double)uwb_info->x)/100.0;
   uwb_data_.pose.position.y = ((double)uwb_info->y)/100.0;
   uwb_data_.pose.position.z = 0;
-  uwb_data_.pose.orientation = tf::createQuaternionMsgFromYaw(uwb_info->yaw/ 180.0 * M_PI);
-  ros_uwb_pub_.publish(uwb_data_);
+  tf2::Quaternion q;
+  q.setRPY(0, 0, uwb_info->yaw/ 180.0 * M_PI);
+  uwb_data_.pose.orientation = tf2::toMsg(q);
+  ros_uwb_pub_->publish(uwb_data_);
 
 }
 
-void Chassis::ChassisSpeedCtrlCallback(const geometry_msgs::Twist::ConstPtr &vel){
+void Chassis::ChassisSpeedCtrlCallback(const geometry_msgs::msg::Twist::ConstPtr &vel){
   roborts_sdk::cmd_chassis_speed chassis_speed;
   chassis_speed.vx = vel->linear.x*1000;
   chassis_speed.vy = vel->linear.y*1000;
@@ -132,16 +140,16 @@ void Chassis::ChassisSpeedCtrlCallback(const geometry_msgs::Twist::ConstPtr &vel
   chassis_speed_pub_->Publish(chassis_speed);
 }
 
-void Chassis::ChassisSpeedAccCtrlCallback(const roborts_msgs::TwistAccel::ConstPtr &vel_acc){
-  roborts_sdk::cmd_chassis_spd_acc chassis_spd_acc;
-  chassis_spd_acc.vx = vel_acc->twist.linear.x*1000;
-  chassis_spd_acc.vy = vel_acc->twist.linear.y*1000;
-  chassis_spd_acc.vw = vel_acc->twist.angular.z * 1800.0 / M_PI;
-  chassis_spd_acc.ax = vel_acc->accel.linear.x*1000;
-  chassis_spd_acc.ay = vel_acc->accel.linear.y*1000;
-  chassis_spd_acc.wz = vel_acc->accel.angular.z * 1800.0 / M_PI;
-  chassis_spd_acc.rotate_x_offset = 0;
-  chassis_spd_acc.rotate_y_offset = 0;
-  chassis_spd_acc_pub_->Publish(chassis_spd_acc);
-}
+// void Chassis::ChassisSpeedAccCtrlCallback(const roborts_msgs::msg::TwistAccel::ConstPtr &vel_acc){
+//   roborts_sdk::cmd_chassis_spd_acc chassis_spd_acc;
+//   chassis_spd_acc.vx = vel_acc->twist.linear.x*1000;
+//   chassis_spd_acc.vy = vel_acc->twist.linear.y*1000;
+//   chassis_spd_acc.vw = vel_acc->twist.angular.z * 1800.0 / M_PI;
+//   chassis_spd_acc.ax = vel_acc->accel.linear.x*1000;
+//   chassis_spd_acc.ay = vel_acc->accel.linear.y*1000;
+//   chassis_spd_acc.wz = vel_acc->accel.angular.z * 1800.0 / M_PI;
+//   chassis_spd_acc.rotate_x_offset = 0;
+//   chassis_spd_acc.rotate_y_offset = 0;
+//   chassis_spd_acc_pub_->Publish(chassis_spd_acc);
+// }
 }

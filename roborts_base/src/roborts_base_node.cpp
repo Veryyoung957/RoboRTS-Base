@@ -19,47 +19,59 @@
 #include "config.h"
 #include "module.h"
 #include "utils/factory.h"
+#include "rclcpp/rclcpp.hpp"
 
-using SDKModuleFactory=ModuleFactory<roborts_base::Module,
-std::shared_ptr<roborts_sdk::Handle>>;
-int main(int argc, char **argv){
+using SDKModuleFactory = ModuleFactory<roborts_base::Module,
+                                       std::shared_ptr<roborts_sdk::Handle>>;
+int main(int argc, char **argv)
+{
   GLogWrapper glog_wrapper(argv[0]);
-  ros::init(argc, argv, "roborts_base_node");
-  ros::NodeHandle nh;
+  rclcpp::init(argc, argv);
+  rclcpp::executors::SingleThreadedExecutor executor;
+  auto node = rclcpp::Node::make_shared("roborts_base");
   // init config from ros parameter
   roborts_base::Config config;
-  config.GetParam();
+  // config.GetParam();
   // create sdk handler
   auto handle = std::make_shared<roborts_sdk::Handle>(config.serial_port);
-  if(!handle->Init()) return 1;
+  if (!handle->Init())
+    return 1;
   // list registed module
+  rclcpp::Rate loop_rate(1000);
   auto registed_module = SDKModuleFactory::GetModuleName();
-  for(auto registed_module_name: registed_module){
-    ROS_INFO_STREAM("Module "
-                        <<CL_BOLDGREEN<<registed_module_name<<CL_RESET
-                        <<" has been registed.");
+  for (auto registed_module_name : registed_module)
+  {
+    RCLCPP_INFO_STREAM(node->get_logger(),"Module "
+                    << CL_BOLDGREEN << registed_module_name << CL_RESET
+                    << " has been registed.");
   }
   // load modules according to configuration
   std::unordered_map<std::string, std::unique_ptr<roborts_base::Module>> load_module_dict;
-  for(auto load_module_name: config.load_module){
+  for (auto load_module_name : config.load_module)
+  {
     auto module = ModuleFactory<roborts_base::Module,
-    std::shared_ptr<roborts_sdk::Handle>>::CreateModule(load_module_name, handle);
-    if(module==nullptr){
-      ROS_WARN_STREAM("Module "
-                          <<CL_BOLDRED<<load_module_name<<CL_YELLOW
-                          <<" can not be loaded as you haven't register it.");
+                                std::shared_ptr<roborts_sdk::Handle>>::CreateModule(load_module_name, handle);
+    if (module == nullptr)
+    {
+      RCLCPP_WARN(node->get_logger(), "Module %s can not be loaded as you haven't register it.",
+                     load_module_name.c_str());
       continue;
     }
-    load_module_dict[load_module_name] = std::move(module);
-    ROS_INFO_STREAM("Module "
-                        <<CL_BOLDBLUE<<load_module_name<<CL_RESET
-                        <<" has been loaded.");
+    executor.add_node(module);
+    
+    //load_module_dict[load_module_name] = std::move(module);
+    RCLCPP_INFO_STREAM(node->get_logger(),"Module "
+                    << CL_BOLDBLUE << load_module_name << CL_RESET
+                    << " has been loaded.");
   }
+  executor.add_node(node);
   // spin
-  while(ros::ok()) {
+  while (rclcpp::ok())
+  {
     handle->Spin();
-    ros::spinOnce();
-    usleep(1000);
+    executor.spin_some();
+    loop_rate.sleep();
   }
-
+  
+  rclcpp::shutdown();
 }

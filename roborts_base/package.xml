@@ -13,8 +13,9 @@
     <buildtool_depend>catkin</buildtool_depend>
 
     <depend>roscpp</depend>
-    <depend>tf</depend>
+    <depend>tf2</depend>
     <depend>roborts_msgs</depend>
+    <depend>nav_msgs</depend>
 
     <depend>libgoogle-glog-dev</depend>
 </package>

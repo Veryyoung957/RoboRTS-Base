@@ -17,7 +17,6 @@
 
 #ifndef ROBORTS_BASE_MODULE_H
 #define ROBORTS_BASE_MODULE_H
-
 #include <memory>
 #include "roborts_sdk.h"
 
@@ -25,13 +24,16 @@ namespace roborts_base {
 /**
  * @brief ROS API for module base
  */
-class Module {
+class Module : public rclcpp::Node{
  public:
   /**
    * @brief Constructor of module
    * @param handle handler of sdk
    */
-  Module(std::shared_ptr<roborts_sdk::Handle> handle):handle_(handle){}
+  // Module(std::shared_ptr<roborts_sdk::Handle> handle):handle_(handle){}
+  Module(const std::string& name, std::shared_ptr<roborts_sdk::Handle> handle)
+        : Node(name), handle_(handle) {
+    }
   /**
      * @brief Deconstructor of module
    */
