@@ -1,0 +1,37 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/vr/rm_ros/install/rune_solver/include/**",
+        "/home/vr/rm_ros/install/rune_detector/include/**",
+        "/home/vr/rm_ros/install/roborts_msgs/include/**",
+        "/home/vr/rm_ros/install/rm_serial_driver/include/**",
+        "/home/vr/rm_ros/install/rm_camera_driver/include/**",
+        "/home/vr/rm_ros/install/armor_solver/include/**",
+        "/home/vr/rm_ros/install/armor_detector/include/**",
+        "/home/vr/rm_ros/install/rm_utils/include/**",
+        "/home/vr/rm_ros/install/rm_interfaces/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/vr/rm_ros/src/FYT2024_vision/rm_auto_aim/armor_detector/include/**",
+        "/home/vr/rm_ros/src/FYT2024_vision/rm_auto_aim/armor_solver/include/**",
+        "/home/vr/rm_ros/src/FYT2024_vision/rm_hardware_driver/rm_camera_driver/include/**",
+        "/home/vr/rm_ros/src/FYT2024_vision/rm_hardware_driver/rm_serial_driver/include/**",
+        "/home/vr/rm_ros/src/FYT2024_vision/rm_rune/rune_detector/include/**",
+        "/home/vr/rm_ros/src/FYT2024_vision/rm_rune/rune_solver/include/**",
+        "/home/vr/rm_ros/src/FYT2024_vision/rm_utils/include/**",
+        "/home/vr/rm_ros/src/RoboRTS-Base/roborts_base/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

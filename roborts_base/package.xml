@@ -10,7 +10,7 @@
     <url type="repository">https://github.com/RoboMaster/RoboRTS-Base</url>
     <url type="bugtracker">https://github.com/RoboMaster/RoboRTS-Base/issues</url>
 
-    <buildtool_depend>catkin</buildtool_depend>
+    <buildtool_depend>ament_cmake</buildtool_depend>
 
     <depend>roscpp</depend>
     <depend>tf2</depend>
@@ -18,4 +18,7 @@
     <depend>nav_msgs</depend>
 
     <depend>libgoogle-glog-dev</depend>
+    <export>
+        <build_type>ament_cmake</build_type>
+    </export>
 </package>

@@ -1,0 +1,14 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/vr/rm_ros/install/roborts_msgs/local/lib/python3.10/dist-packages",
+        "/home/vr/rm_ros/install/rm_interfaces/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/vr/rm_ros/install/roborts_msgs/local/lib/python3.10/dist-packages",
+        "/home/vr/rm_ros/install/rm_interfaces/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ]
+}

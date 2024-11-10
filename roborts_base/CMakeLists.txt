@@ -7,7 +7,8 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake_module)
 set(CMAKE_BUILD_TYPE Release)
-add_compile_options(-w)
+set(ROBO_RTS_SDK_PATH "./roborts_sdk/")
+# add_compile_options(-w)
 add_subdirectory(roborts_sdk)
 # Find dependencies
 find_package(ament_cmake REQUIRED)
@@ -21,16 +22,21 @@ find_package(tf2_geometry_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(Glog REQUIRED)
 # Include subdirectory
-
 # Declare a ROS 2 executable
 add_executable(roborts_base_node
   src/roborts_base_node.cpp
   src/chassis.cpp
   src/gimbal.cpp
   src/referee_system.cpp
+  ${ROBO_RTS_SDK_PATH}/src/execution.cpp
+  ${ROBO_RTS_SDK_PATH}/src/handle.cpp
+  ${ROBO_RTS_SDK_PATH}/src/protocol.cpp
+  ${ROBO_RTS_SDK_PATH}/src/serial_device.cpp
 )
+
 target_link_libraries(roborts_base_node
-        roborts_sdk)
+      roborts_sdk)
+
 # Specify libraries to link a library or executable target against
 ament_target_dependencies(roborts_base_node
   rclcpp
@@ -43,6 +49,9 @@ ament_target_dependencies(roborts_base_node
   geometry_msgs
 )
 
+add_dependencies(roborts_base_node
+  roborts_sdk)
+
 # Include directories
 target_include_directories(roborts_base_node PUBLIC
   include
@@ -54,17 +63,29 @@ target_include_directories(roborts_base_node PUBLIC
 )
 
 # ROS 2 exports and installations
-ament_export_dependencies(rclcpp tf2_ros tf2 roborts_msgs)
-ament_export_include_directories(include)
-ament_export_libraries(
-  roborts_sdk
-)
+# ament_export_dependencies(rclcpp tf2_ros tf2 roborts_msgs)
+# ament_export_include_directories(include)
+# ament_export_libraries(
+#   roborts_sdk
+# )
 install(TARGETS
   roborts_base_node
   DESTINATION lib/${PROJECT_NAME}
 )
-
+install(DIRECTORY
+  launch
+  include
+  config
+  roborts_sdk
+  DESTINATION share/${PROJECT_NAME}
+)
+install(
+    TARGETS roborts_sdk
+    EXPORT roborts_sdk
+    LIBRARY DESTINATION lib/${PROJECT_NAME}
+    ARCHIVE DESTINATION lib/${PROJECT_NAME}
+    RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
 # Uncomment if there are specific messages or services
-add_dependencies(roborts_base_node
-  roborts_sdk)
+
 ament_package()
