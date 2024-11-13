@@ -58,6 +58,10 @@ namespace roborts_base
 
     gimbal_angle_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_gimbal_angle>(GIMBAL_CMD_SET, CMD_SET_GIMBAL_ANGLE,
                                                                                 MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);
+
+    gimbal_cmd_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_gimbal_cmd>(GIMBAL_CMD_SET, CMD_SET_GIMBAL_ANGLE,
+                                                                                MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);
+
     fric_wheel_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_fric_wheel_speed>(GIMBAL_CMD_SET, CMD_SET_FRIC_WHEEL_SPEED,
                                                                                   MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);
     gimbal_shoot_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_shoot_info>(GIMBAL_CMD_SET, CMD_SET_SHOOT_INFO,
@@ -65,6 +69,7 @@ namespace roborts_base
 
     heartbeat_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_heartbeat>(UNIVERSAL_CMD_SET, CMD_HEARTBEAT,
                                                                           MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);
+                                                                          
     heartbeat_thread_ = std::thread([this]
                                     {
                                     roborts_sdk::cmd_heartbeat heartbeat;
@@ -82,6 +87,11 @@ namespace roborts_base
     ros_sub_cmd_gimbal_angle_ = this->create_subscription<roborts_msgs::msg::GimbalAngle>(
         "cmd_gimbal_angle", rclcpp::SystemDefaultsQoS(),
         std::bind(&Gimbal::GimbalAngleCtrlCallback, this, std::placeholders::_1));
+
+    ros_sub_cmd_gimbal_cmd_ = this->create_subscription<roborts_msgs::msg::GimbalCmd>(
+        "cmd_gimbal_angle", rclcpp::SystemDefaultsQoS(),
+        std::bind(&Gimbal::GimbalCmdCtrlCallback, this, std::placeholders::_1));
+             
 
     // Services
     // ros_ctrl_fric_wheel_srv_ = this->create_service<roborts_msgs::srv::FricWhl>(
@@ -132,6 +142,22 @@ namespace roborts_base
 
     gimbal_angle_pub_->Publish(gimbal_angle);
   }
+  
+
+  void Gimbal::GimbalCmdCtrlCallback(const roborts_msgs::msg::GimbalCmd::ConstPtr &msg)
+  {
+
+    roborts_sdk::cmd_gimbal_cmd gimbal_cmd;
+    gimbal_cmd.pitch = msg->pitch * 1800 / M_PI;
+    gimbal_cmd.yaw = msg->yaw * 1800 / M_PI;
+    gimbal_cmd.pitch_diff = msg->pitch_diff;
+    gimbal_cmd.yaw_diff = msg->yaw_diff;
+    gimbal_cmd.distance = msg->distance;
+    gimbal_cmd.fire_advice = msg->fire_advice;
+
+    gimbal_cmd_pub_->Publish(gimbal_cmd);
+  }
+
 
   bool Gimbal::CtrlFricWheelService(const std::shared_ptr<roborts_msgs::srv::FricWhl::Request> &req,
                                     std::shared_ptr<roborts_msgs::srv::FricWhl::Response> &res)

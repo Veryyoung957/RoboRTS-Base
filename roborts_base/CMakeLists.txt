@@ -13,6 +13,7 @@ add_subdirectory(roborts_sdk)
 # Find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(roborts_msgs REQUIRED)

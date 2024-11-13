@@ -262,6 +262,18 @@ typedef struct {
   uint16_t shoot_freq;
 } cmd_shoot_info;
 
+
+#define CMD_SET_GIMBAL_CMD           (0x06u)
+typedef struct
+{
+  double pitch;
+  double yaw;
+  double yaw_diff;
+  double pitch_diff;
+  double distance;
+  bool fire_advice;
+}cmd_gimbal_cmd;
+
 /*------------------------COMPATIBLE_CMD_SET---- 0x04 -------------------*/
 #define CMD_RC_DATA_FORWARD            (0X01u)
 

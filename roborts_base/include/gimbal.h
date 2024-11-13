@@ -63,6 +63,9 @@ class Gimbal: public Module {
    * @param res Control result as response
    * @return True if success
    */
+
+  void GimbalCmdCtrlCallback(const roborts_msgs::msg::GimbalCmd::ConstPtr &msg);
+
   bool CtrlFricWheelService(const std::shared_ptr<roborts_msgs::srv::FricWhl::Request> &req,
                                     std::shared_ptr<roborts_msgs::srv::FricWhl::Response> &res);
   /**
@@ -91,6 +94,10 @@ class Gimbal: public Module {
   //! sdk publisher for gimbal shoot control
   std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_shoot_info>>       gimbal_shoot_pub_;
 
+  std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_gimbal_cmd>>     gimbal_cmd_pub_;
+
+
+
   //! ros node handler
   //rclcpp::NodeHandle    ros_nh_;
   //! ros subscriber for gimbal angle control
@@ -103,6 +110,9 @@ class Gimbal: public Module {
   geometry_msgs::msg::TransformStamped gimbal_tf_;
   //! ros gimbal tf broadcaster
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+
+  // ros gimbalcmd
+   rclcpp::Subscription<roborts_msgs::msg::GimbalCmd>::SharedPtr    ros_sub_cmd_gimbal_cmd_ ;
 
 };
 REGISTER_MODULE(Module, "gimbal", Gimbal, std::shared_ptr<roborts_sdk::Handle>);

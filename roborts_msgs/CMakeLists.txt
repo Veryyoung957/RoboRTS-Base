@@ -19,6 +19,7 @@ find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
 #   "msg/chassis/TwistAccel.msg"
   "msg/gimbal/GimbalAngle.msg"
+  "msg/gimbal/GimbalCmd.msg"
   "msg/referee_system/GameStatus.msg"
   "msg/referee_system/GameResult.msg"
   "msg/referee_system/GameRobotHP.msg"
@@ -32,6 +33,10 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/referee_system/LurkStatus.msg"
   "srv/gimbal/FricWhl.srv"
   "srv/gimbal/ShootCmd.srv"
+
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
 )
 
 

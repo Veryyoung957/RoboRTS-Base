@@ -35,6 +35,7 @@
 #include "roborts_msgs/msg/gimbal_angle.hpp"
 #include "roborts_msgs/srv/shoot_cmd.hpp"
 #include "roborts_msgs/srv/fric_whl.hpp"
+#include "roborts_msgs/msg/gimbal_cmd.hpp"
 
 //! Referee System
 #include "roborts_msgs/msg/game_result.hpp"
