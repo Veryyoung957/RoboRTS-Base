@@ -65,14 +65,14 @@ namespace roborts_base
 
     heartbeat_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_heartbeat>(UNIVERSAL_CMD_SET, CMD_HEARTBEAT,
                                                                           MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);
-    heartbeat_thread_ = std::thread([this]
-                                    {
-                                    roborts_sdk::cmd_heartbeat heartbeat;
-                                    heartbeat.heartbeat=0;
-                                    while(rclcpp::ok()){
-                                      heartbeat_pub_->Publish(heartbeat);
-                                      std::this_thread::sleep_for(std::chrono::milliseconds(300));
-                                    } });
+    // heartbeat_thread_ = std::thread([this]
+    //                                 {
+    //                                 roborts_sdk::cmd_heartbeat heartbeat;
+    //                                 heartbeat.heartbeat=0;
+    //                                 while(rclcpp::ok()){
+    //                                   heartbeat_pub_->Publish(heartbeat);
+    //                                   std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    //                                 } });
   }
 
   void Gimbal::ROS_Init()

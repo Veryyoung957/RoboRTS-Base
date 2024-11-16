@@ -81,7 +81,7 @@ class RefereeSystem: public Module {
   rclcpp::Publisher<roborts_msgs::msg::RobotShoot>::SharedPtr ros_robot_shoot_pub_;
 
 };
-REGISTER_MODULE(Module, "referee_system", RefereeSystem, std::shared_ptr<roborts_sdk::Handle>);
+// REGISTER_MODULE(Module, "referee_system", RefereeSystem, std::shared_ptr<roborts_sdk::Handle>);
 }
 
 #endif //ROBORTS_BASE_REFEREE_SYSTEM_H

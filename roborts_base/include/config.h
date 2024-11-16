@@ -24,7 +24,7 @@ namespace roborts_base{
 
 struct Config : public rclcpp::Node {
   Config() : Node("config"){
-    this->declare_parameter("serial_port", "/dev/ttyACM0");
+    this->declare_parameter("serial_port", "/dev/ttyUSB0");
     this->declare_parameter<std::vector<std::string>>("load_module", 
                                         {"chassis",
                                          "gimbal",

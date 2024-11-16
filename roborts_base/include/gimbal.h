@@ -105,6 +105,6 @@ class Gimbal: public Module {
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
 };
-REGISTER_MODULE(Module, "gimbal", Gimbal, std::shared_ptr<roborts_sdk::Handle>);
+// REGISTER_MODULE(Module, "gimbal", Gimbal, std::shared_ptr<roborts_sdk::Handle>);
 }
 #endif //ROBORTS_BASE_GIMBAL_H

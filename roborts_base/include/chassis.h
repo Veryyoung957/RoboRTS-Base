@@ -109,6 +109,6 @@ class Chassis: public Module{
   //! ros uwb message
   geometry_msgs::msg::PoseStamped uwb_data_;
 };
-REGISTER_MODULE(Module, "chassis", Chassis, std::shared_ptr<roborts_sdk::Handle>);
+// REGISTER_MODULE(Module, "chassis", Chassis, std::shared_ptr<roborts_sdk::Handle>);
 }
 #endif //ROBORTS_BASE_CHASSIS_H
