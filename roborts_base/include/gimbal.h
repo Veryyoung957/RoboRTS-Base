@@ -102,7 +102,7 @@ class Gimbal: public Module {
   //! ros gimbal tf
   geometry_msgs::msg::TransformStamped gimbal_tf_;
   //! ros gimbal tf broadcaster
-  std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+  std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
 };
 // REGISTER_MODULE(Module, "gimbal", Gimbal, std::shared_ptr<roborts_sdk::Handle>);

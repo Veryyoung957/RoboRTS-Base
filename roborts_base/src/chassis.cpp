@@ -77,7 +77,7 @@ void Chassis::ROS_Init(){
   // Subscriber
   ros_sub_cmd_chassis_vel_ = this->create_subscription<geometry_msgs::msg::Twist>(
       "cmd_vel", rclcpp::SystemDefaultsQoS(), std::bind(&Chassis::ChassisSpeedCtrlCallback, this, std::placeholders::_1));
-  
+  tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
   // ros_sub_cmd_chassis_vel_acc_ = this->create_subscription<geometry_msgs::msg::Twist>(
   //     "cmd_vel_acc", rclcpp::SystemDefaultsQoS(), std::bind(&Chassis::ChassisSpeedAccCtrlCallback, this, std::placeholders::_1));
 

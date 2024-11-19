@@ -103,7 +103,7 @@ class Chassis: public Module{
   //! ros chassis odometry tf
   geometry_msgs::msg::TransformStamped odom_tf_;
   //! ros chassis odometry tf broadcaster
-  std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+  std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
   //! ros odometry message
   nav_msgs::msg::Odometry odom_;
   //! ros uwb message

@@ -27,10 +27,10 @@ namespace roborts_base
 
   Gimbal::~Gimbal()
   {
-    if (heartbeat_thread_.joinable())
-    {
-      heartbeat_thread_.join();
-    }
+    // if (heartbeat_thread_.joinable())
+    // {
+    //   heartbeat_thread_.join();
+    // }
   }
 
   void Gimbal::SDK_Init()
@@ -82,7 +82,7 @@ namespace roborts_base
     ros_sub_cmd_gimbal_angle_ = this->create_subscription<roborts_msgs::msg::GimbalAngle>(
         "cmd_gimbal_angle", rclcpp::SystemDefaultsQoS(),
         std::bind(&Gimbal::GimbalAngleCtrlCallback, this, std::placeholders::_1));
-
+    tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
     // Services
     // ros_ctrl_fric_wheel_srv_ = this->create_service<roborts_msgs::srv::FricWhl>(
     //     "cmd_fric_wheel", std::bind(&Gimbal::CtrlFricWheelService, this,
