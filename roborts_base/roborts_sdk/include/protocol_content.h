@@ -274,6 +274,41 @@ typedef struct
   bool fire_advice;
 }cmd_gimbal_cmd;
 
+#define CMD_SET_TARGET           (0x07u)
+typedef struct
+{
+  bool tracking;
+  uint8_t id : 3;       
+  uint8_t armors_num : 3;  
+  float x; 
+  float y; 
+  float z; 
+  float yaw; 
+  float vx; 
+  float vy; 
+  float vz; 
+  float v_yaw; 
+  float r1; 
+  float r2; 
+  float dz; 
+}cmd_target;
+
+#define CMD_SET_LATENCY           (0x08u)
+typedef struct
+{
+  float roll;
+  float pitch;
+  float yaw;
+}cmd_latency;
+
+#define CMD_SET_AIMPOSITION           (0x09u)
+typedef struct
+{
+  float aim_x;
+  float aim_y;
+  float aim_z;
+}cmd_aim_position;
+
 /*------------------------COMPATIBLE_CMD_SET---- 0x04 -------------------*/
 #define CMD_RC_DATA_FORWARD            (0X01u)
 
@@ -481,6 +516,8 @@ typedef struct
   uint8_t bullet_freq;
   float bullet_speed;
 } cmd_shoot_data;
+
+
 
 /*-----------------------------TEST_CMD---- 0xFF ---------------------*/
 #define TEXT_ECHO_TRANSMIT             (0x00u)

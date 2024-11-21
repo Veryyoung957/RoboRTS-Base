@@ -66,6 +66,11 @@ class Gimbal: public Module {
 
   void GimbalCmdCtrlCallback(const roborts_msgs::msg::GimbalCmd::ConstPtr &msg);
 
+  void LatencyCmdCtrlCallback(const roborts_msgs::msg::Latency::ConstPtr &msg);
+  void AimPositionCmdCtrlCallback(const roborts_msgs::msg::AimingPoint::ConstPtr &msg);
+
+  void TargetCallback(const roborts_msgs::msg::Target::ConstPtr &msg);
+
   bool CtrlFricWheelService(const std::shared_ptr<roborts_msgs::srv::FricWhl::Request> &req,
                                     std::shared_ptr<roborts_msgs::srv::FricWhl::Response> &res);
   /**
@@ -96,6 +101,11 @@ class Gimbal: public Module {
 
   std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_gimbal_cmd>>     gimbal_cmd_pub_;
 
+  std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_latency>>         latency_cmd_pub_;
+  std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_aim_position>>     aim_position_cmd_pub_;
+
+  // sdk subscription
+  std::shared_ptr<roborts_sdk::Subscription<roborts_sdk::cmd_target>>       auto_aim_cmd_;
 
 
   //! ros node handler
@@ -112,7 +122,13 @@ class Gimbal: public Module {
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
   // ros gimbalcmd
-   rclcpp::Subscription<roborts_msgs::msg::GimbalCmd>::SharedPtr    ros_sub_cmd_gimbal_cmd_ ;
+  rclcpp::Subscription<roborts_msgs::msg::GimbalCmd>::SharedPtr    ros_sub_cmd_gimbal_cmd_ ;
+  // ros target
+  rclcpp::Subscription<roborts_msgs::msg::Target>::SharedPtr       ros_sub_auto_aim_ ;
+
+  rclcpp::Subscription<roborts_msgs::msg::Latency>::SharedPtr    ros_sub_latency_cmd_ ;
+  rclcpp::Subscription<roborts_msgs::msg::AimingPoint>::SharedPtr    ros_sub_aim_position_cmd_ ;
+
 
 };
 REGISTER_MODULE(Module, "gimbal", Gimbal, std::shared_ptr<roborts_sdk::Handle>);

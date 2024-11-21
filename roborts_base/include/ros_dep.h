@@ -49,4 +49,9 @@
 #include "roborts_msgs/msg/robot_damage.hpp"
 #include "roborts_msgs/msg/robot_shoot.hpp"
 #include "roborts_msgs/msg/lurk_status.hpp"
+
+// auto_aim
+#include "roborts_msgs/msg/target.hpp"
+#include "roborts_msgs/msg/latency.hpp"
+#include "roborts_msgs/msg/aiming_point.hpp"
 #endif //ROBORTS_BASE_ROS_DEP_H
