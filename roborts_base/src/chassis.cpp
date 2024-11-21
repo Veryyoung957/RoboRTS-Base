@@ -46,9 +46,9 @@ void Chassis::SDK_Init(){
                                                int(future.get()->version_id&0xFF));
                                     });
 
-  handle_->CreateSubscriber<roborts_sdk::cmd_chassis_info>(CHASSIS_CMD_SET, CMD_PUSH_CHASSIS_INFO,
-                                                           CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
-                                                           std::bind(&Chassis::ChassisInfoCallback, this, std::placeholders::_1));
+  // handle_->CreateSubscriber<roborts_sdk::cmd_chassis_info>(CHASSIS_CMD_SET, CMD_PUSH_CHASSIS_INFO,
+  //                                                          CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
+  //                                                          std::bind(&Chassis::ChassisInfoCallback, this, std::placeholders::_1));
   handle_->CreateSubscriber<roborts_sdk::cmd_uwb_info>(COMPATIBLE_CMD_SET, CMD_PUSH_UWB_INFO,
                                                        CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
                                                        std::bind(&Chassis::UWBInfoCallback, this, std::placeholders::_1));
@@ -114,7 +114,6 @@ void Chassis::ChassisInfoCallback(const std::shared_ptr<roborts_sdk::cmd_chassis
   odom_tf_.transform.translation.z = 0.0;
   odom_tf_.transform.rotation = tf2::toMsg(q);
   tf_broadcaster_->sendTransform(odom_tf_);
-
 }
 void Chassis::UWBInfoCallback(const std::shared_ptr<roborts_sdk::cmd_uwb_info> uwb_info){
 
