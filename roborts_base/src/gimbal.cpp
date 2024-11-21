@@ -27,10 +27,10 @@ namespace roborts_base
 
   Gimbal::~Gimbal()
   {
-    if (heartbeat_thread_.joinable())
-    {
-      heartbeat_thread_.join();
-    }
+    // if (heartbeat_thread_.joinable())
+    // {
+    //   heartbeat_thread_.join();
+    // }
   }
 
   void Gimbal::SDK_Init()
@@ -78,7 +78,6 @@ namespace roborts_base
 
     heartbeat_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_heartbeat>(UNIVERSAL_CMD_SET, CMD_HEARTBEAT,
                                                                           MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);
-                                                                          
     heartbeat_thread_ = std::thread([this]
                                     {
                                     roborts_sdk::cmd_heartbeat heartbeat;
@@ -97,22 +96,6 @@ namespace roborts_base
         "cmd_gimbal_angle", rclcpp::SystemDefaultsQoS(),
         std::bind(&Gimbal::GimbalAngleCtrlCallback, this, std::placeholders::_1));
 
-    ros_sub_cmd_gimbal_cmd_ = this->create_subscription<roborts_msgs::msg::GimbalCmd>(
-        "cmd_gimbal_angle", rclcpp::SystemDefaultsQoS(),
-        std::bind(&Gimbal::GimbalCmdCtrlCallback, this, std::placeholders::_1));
-
-    ros_sub_latency_cmd_ = this->create_subscription<roborts_msgs::msg::Latency>(
-        "cmd_gimbal_angle", rclcpp::SystemDefaultsQoS(),
-        std::bind(&Gimbal::LatencyCmdCtrlCallback, this, std::placeholders::_1));
-
-    ros_sub_aim_position_cmd_ = this->create_subscription<roborts_msgs::msg::AimingPoint>(
-        "cmd_gimbal_angle", rclcpp::SystemDefaultsQoS(),
-        std::bind(&Gimbal::AimPositionCmdCtrlCallback, this, std::placeholders::_1));
-
-    ros_sub_auto_aim_ = this->create_subscription<roborts_msgs::msg::Target>(
-        "cmd_gimbal_angle", rclcpp::SystemDefaultsQoS(),
-        std::bind(&Gimbal::TargetCallback, this, std::placeholders::_1));
-             
     // Services
     // ros_ctrl_fric_wheel_srv_ = this->create_service<roborts_msgs::srv::FricWhl>(
     //     "cmd_fric_wheel", std::bind(&Gimbal::CtrlFricWheelService, this,

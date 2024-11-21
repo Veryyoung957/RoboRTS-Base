@@ -103,12 +103,12 @@ class Chassis: public Module{
   //! ros chassis odometry tf
   geometry_msgs::msg::TransformStamped odom_tf_;
   //! ros chassis odometry tf broadcaster
-  std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+  std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
   //! ros odometry message
   nav_msgs::msg::Odometry odom_;
   //! ros uwb message
   geometry_msgs::msg::PoseStamped uwb_data_;
 };
-REGISTER_MODULE(Module, "chassis", Chassis, std::shared_ptr<roborts_sdk::Handle>);
+// REGISTER_MODULE(Module, "chassis", Chassis, std::shared_ptr<roborts_sdk::Handle>);
 }
 #endif //ROBORTS_BASE_CHASSIS_H

@@ -119,7 +119,7 @@ class Gimbal: public Module {
   //! ros gimbal tf
   geometry_msgs::msg::TransformStamped gimbal_tf_;
   //! ros gimbal tf broadcaster
-  std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+  std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
   // ros gimbalcmd
   rclcpp::Subscription<roborts_msgs::msg::GimbalCmd>::SharedPtr    ros_sub_cmd_gimbal_cmd_ ;
@@ -131,6 +131,6 @@ class Gimbal: public Module {
 
 
 };
-REGISTER_MODULE(Module, "gimbal", Gimbal, std::shared_ptr<roborts_sdk::Handle>);
+// REGISTER_MODULE(Module, "gimbal", Gimbal, std::shared_ptr<roborts_sdk::Handle>);
 }
 #endif //ROBORTS_BASE_GIMBAL_H

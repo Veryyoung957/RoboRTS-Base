@@ -46,9 +46,9 @@ void Chassis::SDK_Init(){
                                                int(future.get()->version_id&0xFF));
                                     });
 
-  handle_->CreateSubscriber<roborts_sdk::cmd_chassis_info>(CHASSIS_CMD_SET, CMD_PUSH_CHASSIS_INFO,
-                                                           CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
-                                                           std::bind(&Chassis::ChassisInfoCallback, this, std::placeholders::_1));
+  // handle_->CreateSubscriber<roborts_sdk::cmd_chassis_info>(CHASSIS_CMD_SET, CMD_PUSH_CHASSIS_INFO,
+  //                                                          CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
+  //                                                          std::bind(&Chassis::ChassisInfoCallback, this, std::placeholders::_1));
   handle_->CreateSubscriber<roborts_sdk::cmd_uwb_info>(COMPATIBLE_CMD_SET, CMD_PUSH_UWB_INFO,
                                                        CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
                                                        std::bind(&Chassis::UWBInfoCallback, this, std::placeholders::_1));
@@ -60,27 +60,26 @@ void Chassis::SDK_Init(){
 
   heartbeat_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_heartbeat>(UNIVERSAL_CMD_SET, CMD_HEARTBEAT,
                                                                         MANIFOLD2_ADDRESS, CHASSIS_ADDRESS);
-  heartbeat_thread_ = std::thread([this]{
-                                    roborts_sdk::cmd_heartbeat heartbeat;
-                                    heartbeat.heartbeat=0;
-                                    while(rclcpp::ok()){
-                                      heartbeat_pub_->Publish(heartbeat);
-                                      std::this_thread::sleep_for(std::chrono::milliseconds(300));
-                                    }
-                                  }
-  );
+  // heartbeat_thread_ = std::thread([this]{
+  //                                   roborts_sdk::cmd_heartbeat heartbeat;
+  //                                   heartbeat.heartbeat=0;
+  //                                   while(rclcpp::ok()){
+  //                                     heartbeat_pub_->Publish(heartbeat);
+  //                                     std::this_thread::sleep_for(std::chrono::milliseconds(300));
+  //                                   }
+  //                                 });
 }
 void Chassis::ROS_Init(){
   // Publisher
-        ros_odom_pub_ = this->create_publisher<nav_msgs::msg::Odometry>("odom", rclcpp::SystemDefaultsQoS());
-        ros_uwb_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("uwb", rclcpp::SystemDefaultsQoS());
+  ros_odom_pub_ = this->create_publisher<nav_msgs::msg::Odometry>("odom", rclcpp::SystemDefaultsQoS());
+  ros_uwb_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("uwb", rclcpp::SystemDefaultsQoS());
 
-        // Subscriber
-        ros_sub_cmd_chassis_vel_ = this->create_subscription<geometry_msgs::msg::Twist>(
-            "cmd_vel", rclcpp::SystemDefaultsQoS(), std::bind(&Chassis::ChassisSpeedCtrlCallback, this, std::placeholders::_1));
-        
-        // ros_sub_cmd_chassis_vel_acc_ = this->create_subscription<geometry_msgs::msg::Twist>(
-        //     "cmd_vel_acc", rclcpp::SystemDefaultsQoS(), std::bind(&Chassis::ChassisSpeedAccCtrlCallback, this, std::placeholders::_1));
+  // Subscriber
+  ros_sub_cmd_chassis_vel_ = this->create_subscription<geometry_msgs::msg::Twist>(
+      "cmd_vel", rclcpp::SystemDefaultsQoS(), std::bind(&Chassis::ChassisSpeedCtrlCallback, this, std::placeholders::_1));
+  tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+  // ros_sub_cmd_chassis_vel_acc_ = this->create_subscription<geometry_msgs::msg::Twist>(
+  //     "cmd_vel_acc", rclcpp::SystemDefaultsQoS(), std::bind(&Chassis::ChassisSpeedAccCtrlCallback, this, std::placeholders::_1));
 
 
   //ros_message_init
@@ -115,7 +114,6 @@ void Chassis::ChassisInfoCallback(const std::shared_ptr<roborts_sdk::cmd_chassis
   odom_tf_.transform.translation.z = 0.0;
   odom_tf_.transform.rotation = tf2::toMsg(q);
   tf_broadcaster_->sendTransform(odom_tf_);
-
 }
 void Chassis::UWBInfoCallback(const std::shared_ptr<roborts_sdk::cmd_uwb_info> uwb_info){
 
