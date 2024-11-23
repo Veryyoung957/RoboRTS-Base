@@ -293,13 +293,13 @@ typedef struct
   float dz; 
 }cmd_target;
 
-#define CMD_SET_LATENCY           (0x08u)
+#define CMD_SET_RPY           (0x08u)
 typedef struct
 {
   float roll;
   float pitch;
   float yaw;
-}cmd_latency;
+}cmd_rpy;
 
 #define CMD_SET_AIMPOSITION           (0x09u)
 typedef struct
@@ -309,6 +309,12 @@ typedef struct
   float aim_z;
 }cmd_aim_position;
 
+
+#define CMD_TRACKER           (0x0a)
+typedef struct
+{
+  bool tracking;
+}cmd_tracker;
 /*------------------------COMPATIBLE_CMD_SET---- 0x04 -------------------*/
 #define CMD_RC_DATA_FORWARD            (0X01u)
 

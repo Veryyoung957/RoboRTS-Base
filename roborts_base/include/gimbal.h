@@ -64,10 +64,12 @@ class Gimbal: public Module {
    * @return True if success
    */
 
+  void GimbalTFCallback(const std::shared_ptr<roborts_sdk::cmd_rpy> gimbal_tf);
+
   void GimbalCmdCtrlCallback(const roborts_msgs::msg::GimbalCmd::ConstPtr &msg);
 
-  void LatencyCmdCtrlCallback(const roborts_msgs::msg::Latency::ConstPtr &msg);
-  void AimPositionCmdCtrlCallback(const roborts_msgs::msg::AimingPoint::ConstPtr &msg);
+  void RpyCmdCtrlCallback(const std::shared_ptr<roborts_sdk::cmd_rpy> &msg);
+  void AimPositionCmdCtrlCallback(const std::shared_ptr<visualization_msgs::msg::Marker> &msg);
 
   void TargetCallback(const roborts_msgs::msg::Target::ConstPtr &msg);
 
@@ -81,6 +83,9 @@ class Gimbal: public Module {
    */
   void CtrlShootService(const std::shared_ptr<roborts_msgs::srv::ShootCmd::Request> &req,
                         std::shared_ptr<roborts_msgs::srv::ShootCmd::Response> &res);
+
+  //
+  void resetTracker();
 
   //! sdk version client
   std::shared_ptr<roborts_sdk::Client<roborts_sdk::cmd_version_id,
@@ -101,11 +106,13 @@ class Gimbal: public Module {
 
   std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_gimbal_cmd>>     gimbal_cmd_pub_;
 
-  std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_latency>>         latency_cmd_pub_;
-  std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_aim_position>>     aim_position_cmd_pub_;
+  std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_target>>     target_cmd_pub_;
 
   // sdk subscription
-  std::shared_ptr<roborts_sdk::Subscription<roborts_sdk::cmd_target>>       auto_aim_cmd_;
+  // std::shared_ptr<roborts_sdk::Subscription<roborts_sdk::cmd_target>>       auto_aim_cmd_;
+  std::shared_ptr<roborts_sdk::Subscription<roborts_sdk::cmd_rpy>>            rpy_cmd_;
+  std::shared_ptr<roborts_sdk::Subscription<roborts_sdk::cmd_aim_position>>       aim_position_cmd_;
+
 
 
   //! ros node handler
@@ -118,17 +125,24 @@ class Gimbal: public Module {
   rclcpp::Service<roborts_msgs::srv::ShootCmd>::SharedPtr ros_ctrl_shoot_srv_;
   //! ros gimbal tf
   geometry_msgs::msg::TransformStamped gimbal_tf_;
+  geometry_msgs::msg::TransformStamped t;
   //! ros gimbal tf broadcaster
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
   // ros gimbalcmd
   rclcpp::Subscription<roborts_msgs::msg::GimbalCmd>::SharedPtr    ros_sub_cmd_gimbal_cmd_ ;
-  // ros target
-  rclcpp::Subscription<roborts_msgs::msg::Target>::SharedPtr       ros_sub_auto_aim_ ;
 
-  rclcpp::Subscription<roborts_msgs::msg::Latency>::SharedPtr    ros_sub_latency_cmd_ ;
+  rclcpp::Publisher<roborts_msgs::msg::Rpy>::SharedPtr   rpy_pub_ ;
+  rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr    aim_position_pub_ ;
+  rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr    latency_pub_ ;
+
+ 
+  // ros subscription
+  rclcpp::Subscription<roborts_msgs::msg::Rpy>::SharedPtr    ros_sub_rpy_cmd_ ;
   rclcpp::Subscription<roborts_msgs::msg::AimingPoint>::SharedPtr    ros_sub_aim_position_cmd_ ;
 
+  // ros client
+  rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr    reset_tracker_client_;
 
 };
 // REGISTER_MODULE(Module, "gimbal", Gimbal, std::shared_ptr<roborts_sdk::Handle>);

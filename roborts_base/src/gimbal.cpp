@@ -17,6 +17,7 @@
 
 #include "gimbal.h"
 
+
 namespace roborts_base
 {
   Gimbal::Gimbal(std::shared_ptr<roborts_sdk::Handle> handle) : Module("gimbal",handle)
@@ -56,20 +57,22 @@ namespace roborts_base
                                                             GIMBAL_ADDRESS, BROADCAST_ADDRESS,
                                                             std::bind(&Gimbal::GimbalInfoCallback, this, std::placeholders::_1));
 
-    handle_->CreateSubscriber<roborts_msgs::msg::Target>(GIMBAL_CMD_SET, CMD_SET_TARGET,
+    handle_->CreateSubscriber<roborts_sdk::cmd_rpy>(GIMBAL_CMD_SET, CMD_SET_RPY,
+                                                        GIMBAL_ADDRESS, BROADCAST_ADDRESS,
+                                                        std::bind(&Gimbal::GimbalTFCallback, this, std::placeholders::_1));
+
+    handle_->CreateSubscriber<visualization_msgs::msg::Marker>(GIMBAL_CMD_SET, CMD_SET_AIMPOSITION,
                                                             GIMBAL_ADDRESS, BROADCAST_ADDRESS,
-                                                            std::bind(&Gimbal::TargetCallback, this, std::placeholders::_1));
+                                                            std::bind(&Gimbal::AimPositionCmdCtrlCallback, this, std::placeholders::_1));
+    
     gimbal_angle_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_gimbal_angle>(GIMBAL_CMD_SET, CMD_SET_GIMBAL_ANGLE,
                                                                                 MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);
 
     gimbal_cmd_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_gimbal_cmd>(GIMBAL_CMD_SET, CMD_SET_GIMBAL_CMD,
-                                                                                MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);                                                                                                                                                    
-
-    latency_cmd_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_latency>(GIMBAL_CMD_SET, CMD_SET_LATENCY,
+                                                                                MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);  
+  
+    target_cmd_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_target>(GIMBAL_CMD_SET, CMD_SET_TARGET,
                                                                                 MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);
-
-    aim_position_cmd_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_aim_position>(GIMBAL_CMD_SET, CMD_SET_AIMPOSITION,
-                                                                                MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);                                                                                
 
     fric_wheel_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_fric_wheel_speed>(GIMBAL_CMD_SET, CMD_SET_FRIC_WHEEL_SPEED,
                                                                                   MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);
@@ -86,6 +89,8 @@ namespace roborts_base
                                       heartbeat_pub_->Publish(heartbeat);
                                       std::this_thread::sleep_for(std::chrono::milliseconds(300));
                                     } });
+
+    reset_tracker_client_ = this->create_client<std_srvs::srv::Trigger>("/tracker/reset");
   }
 
   void Gimbal::ROS_Init()
@@ -96,6 +101,10 @@ namespace roborts_base
         "cmd_gimbal_angle", rclcpp::SystemDefaultsQoS(),
         std::bind(&Gimbal::GimbalAngleCtrlCallback, this, std::placeholders::_1));
 
+    aim_position_pub_ = this->create_publisher<visualization_msgs::msg::Marker>("/aiming_point", 10);
+    latency_pub_ = this->create_publisher<std_msgs::msg::Float64>("/latency", 10);
+
+    tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
     // Services
     // ros_ctrl_fric_wheel_srv_ = this->create_service<roborts_msgs::srv::FricWhl>(
     //     "cmd_fric_wheel", std::bind(&Gimbal::CtrlFricWheelService, this,
@@ -134,6 +143,18 @@ namespace roborts_base
     tf_broadcaster_->sendTransform(gimbal_tf_);
   }
 
+  void Gimbal::GimbalTFCallback(const std::shared_ptr<roborts_sdk::cmd_rpy> gimbal_tf)
+  {
+    rclcpp::Time current_time = this->get_clock()->now();
+    t.header.frame_id = "odom";
+    t.child_frame_id = "gimbal_link";
+    tf2::Quaternion q;
+    q.setRPY(0.0, gimbal_tf->pitch / 1800.0 * M_PI, gimbal_tf->yaw / 1800.0 * M_PI);
+    t.header.stamp = current_time;
+    t.transform.rotation = tf2::toMsg(q);
+    tf_broadcaster_->sendTransform(t);
+  }
+
   void Gimbal::GimbalAngleCtrlCallback(const roborts_msgs::msg::GimbalAngle::ConstPtr &msg)
   {
 
@@ -161,26 +182,26 @@ namespace roborts_base
     gimbal_cmd_pub_->Publish(gimbal_cmd);
   }
 
-  void Gimbal::LatencyCmdCtrlCallback(const roborts_msgs::msg::Latency::ConstPtr &msg)
+  void Gimbal::RpyCmdCtrlCallback(const std::shared_ptr<roborts_sdk::cmd_rpy> &msg)
   {
 
-    roborts_sdk::cmd_latency latency;
-    latency.pitch = msg->pitch * 1800 / M_PI;
-    latency.yaw = msg->yaw * 1800 / M_PI;
-    latency.roll = msg->roll * 1800 / M_PI;
+    roborts_msgs::msg::Rpy rpy;
+    rpy.pitch = msg->pitch * 1800 / M_PI;
+    rpy.yaw = msg->yaw * 1800 / M_PI;
+    rpy.roll = msg->roll * 1800 / M_PI;
 
-    latency_cmd_pub_->Publish(latency);
+    rpy_pub_->publish(rpy);
   }
 
-  void Gimbal::AimPositionCmdCtrlCallback(const roborts_msgs::msg::AimingPoint::ConstPtr &msg)
+  void Gimbal::AimPositionCmdCtrlCallback(const std::shared_ptr<visualization_msgs::msg::Marker> &msg)
   {
 
-    roborts_sdk::cmd_aim_position aim_position;
-    aim_position.aim_x = msg->aim_x;
-    aim_position.aim_y = msg->aim_y;
-    aim_position.aim_z = msg->aim_z;
+    visualization_msgs::msg::Marker aim_position;
+    aim_position.pose.position.x = msg->pose.position.x;
+    aim_position.pose.position.y = msg->pose.position.y;
+    aim_position.pose.position.z = msg->pose.position.z;
 
-    aim_position_cmd_pub_->Publish(aim_position);
+    aim_position_pub_->publish(aim_position);
   }
 
     void Gimbal::TargetCallback(const roborts_msgs::msg::Target::ConstPtr &msg)
@@ -206,8 +227,26 @@ namespace roborts_base
     target.r1 = msg->radius_1;
     target.r2 = msg->radius_2;
     target.dz = msg->dz; // 高度差
+
+    target_cmd_pub_->Publish(target);
+
+    std_msgs::msg::Float64 latency;
+    latency.data = (this->now() - msg->header.stamp).seconds() * 1000.0;
+    RCLCPP_DEBUG_STREAM(get_logger(), "Total latency: " + std::to_string(latency.data) + "ms");
+    latency_pub_->publish(latency);
   }
 
+  void Gimbal::resetTracker()
+  {
+    if (!reset_tracker_client_->service_is_ready()) {
+      RCLCPP_WARN(get_logger(), "Service not ready, skipping tracker reset");
+      return;
+    }
+
+    auto request = std::make_shared<std_srvs::srv::Trigger::Request>();
+    reset_tracker_client_->async_send_request(request);
+    RCLCPP_INFO(get_logger(), "Reset tracker!");
+  }
 
   bool Gimbal::CtrlFricWheelService(const std::shared_ptr<roborts_msgs::srv::FricWhl::Request> &req,
                                     std::shared_ptr<roborts_msgs::srv::FricWhl::Response> &res)

@@ -16,9 +16,13 @@
     <depend>tf2</depend>
     <depend>roborts_msgs</depend>
     <depend>nav_msgs</depend>
+    <depend>std_srvs</depend>
+    <depend>visualization_msgs</depend>
 
     <depend>libgoogle-glog-dev</depend>
     <export>
         <build_type>ament_cmake</build_type>
     </export>
 </package>
+
+

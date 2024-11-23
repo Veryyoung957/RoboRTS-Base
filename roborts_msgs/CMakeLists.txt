@@ -21,7 +21,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/gimbal/GimbalAngle.msg"
   "msg/gimbal/GimbalCmd.msg"
   "msg/auto_aim/Target.msg"
-  "msg/auto_aim/Latency.msg"
+  "msg/auto_aim/Rpy.msg"
   "msg/auto_aim/AimingPoint.msg"
   "msg/referee_system/GameStatus.msg"
   "msg/referee_system/GameResult.msg"
