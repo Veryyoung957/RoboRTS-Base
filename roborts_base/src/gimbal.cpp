@@ -64,7 +64,7 @@ namespace roborts_base
     handle_->CreateSubscriber<visualization_msgs::msg::Marker>(GIMBAL_CMD_SET, CMD_SET_AIMPOSITION,
                                                             GIMBAL_ADDRESS, BROADCAST_ADDRESS,
                                                             std::bind(&Gimbal::AimPositionCmdCtrlCallback, this, std::placeholders::_1));
-    
+
     gimbal_angle_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_gimbal_angle>(GIMBAL_CMD_SET, CMD_SET_GIMBAL_ANGLE,
                                                                                 MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);
 
@@ -101,6 +101,10 @@ namespace roborts_base
         "cmd_gimbal_angle", rclcpp::SystemDefaultsQoS(),
         std::bind(&Gimbal::GimbalAngleCtrlCallback, this, std::placeholders::_1));
 
+    ros_sub_target_ = this->create_subscription<roborts_msgs::msg::Target>(
+        "/tracker/target", rclcpp::SensorDataQoS(),
+        std::bind(&Gimbal::TargetCallback, this, std::placeholders::_1));
+
     aim_position_pub_ = this->create_publisher<visualization_msgs::msg::Marker>("/aiming_point", 10);
     latency_pub_ = this->create_publisher<std_msgs::msg::Float64>("/latency", 10);
 
@@ -136,7 +140,7 @@ namespace roborts_base
     q.setRPY(0.0, gimbal_info->pitch_ecd_angle / 1800.0 * M_PI, gimbal_info->yaw_ecd_angle / 1800.0 * M_PI);
     //geometry_msgs::msg::Quaternion q = tf2::toMsg(q);
     gimbal_tf_.header.stamp = current_time;
-    gimbal_tf_.transform.rotation = tf2::toMsg(q);
+    gimbal_tf_.transform.rotation = tf2::toMsg(q);                            
     gimbal_tf_.transform.translation.x = 0;
     gimbal_tf_.transform.translation.y = 0;
     gimbal_tf_.transform.translation.z = 0.15;
