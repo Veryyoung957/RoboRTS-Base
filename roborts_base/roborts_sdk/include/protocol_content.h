@@ -277,9 +277,14 @@ typedef struct
 #define CMD_SET_TARGET           (0x07u)
 typedef struct
 {
-  bool tracking;
-  uint8_t id : 3;       
-  uint8_t armors_num : 3;  
+  union{
+    uint8_t flag;
+    struct {
+      uint8_t tracking :2;
+      uint8_t id : 3;       
+      uint8_t armors_num : 3; 
+    } bit;
+  } ctrl; 
   float x; 
   float y; 
   float z; 

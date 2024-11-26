@@ -130,21 +130,28 @@ namespace roborts_base
     // Message Initialization
     gimbal_tf_.header.frame_id = "base_link";
     gimbal_tf_.child_frame_id = "gimbal";
+    t.header.frame_id = "odom";
+    t.child_frame_id = "gimbal_link";
   }
 
   void Gimbal::GimbalInfoCallback(const std::shared_ptr<roborts_sdk::cmd_gimbal_info> gimbal_info)
   {
 
     rclcpp::Time current_time = this->get_clock()->now();
-    tf2::Quaternion q;
-    q.setRPY(0.0, gimbal_info->pitch_ecd_angle / 1800.0 * M_PI, gimbal_info->yaw_ecd_angle / 1800.0 * M_PI);
+    tf2::Quaternion q_1;
+    q_1.setRPY(0.0, gimbal_info->pitch_ecd_angle / 1800.0 * M_PI, gimbal_info->yaw_ecd_angle / 1800.0 * M_PI);
     //geometry_msgs::msg::Quaternion q = tf2::toMsg(q);
     gimbal_tf_.header.stamp = current_time;
-    gimbal_tf_.transform.rotation = tf2::toMsg(q);                            
+    gimbal_tf_.transform.rotation = tf2::toMsg(q_1);                            
     gimbal_tf_.transform.translation.x = 0;
     gimbal_tf_.transform.translation.y = 0;
     gimbal_tf_.transform.translation.z = 0.15;
     tf_broadcaster_->sendTransform(gimbal_tf_);
+    tf2::Quaternion q_2;
+    q_2.setRPY(0.0, gimbal_info->pitch_gyro_angle / 1800.0 * M_PI, gimbal_info->yaw_gyro_angle/ 1800.0 * M_PI);
+    t.header.stamp = current_time;
+    t.transform.rotation = tf2::toMsg(q_2);
+    tf_broadcaster_->sendTransform(t);
   }
 
   void Gimbal::GimbalTFCallback(const std::shared_ptr<roborts_sdk::cmd_rpy> gimbal_tf)
@@ -215,9 +222,9 @@ namespace roborts_base
       {"3", 3}, {"4", 4},       {"5", 5}, {"guard", 6}, {"base", 7}};
 
     roborts_sdk::cmd_target target;
-    target.tracking = msg->tracking;
-    target.id = id_unit8_map.at(msg->id);
-    target.armors_num = msg->armors_num;
+    target.ctrl.bit.tracking = msg->tracking;
+    target.ctrl.bit.id = id_unit8_map.at(msg->id);
+    target.ctrl.bit.armors_num = msg->armors_num;
     // 三维空间中的位置
     target.x = msg->position.x;
     target.y = msg->position.y;
@@ -232,6 +239,7 @@ namespace roborts_base
     target.r2 = msg->radius_2;
     target.dz = msg->dz; // 高度差
 
+    RCLCPP_INFO(get_logger(), "target_cmd_pub_  send");
     target_cmd_pub_->Publish(target);
 
     std_msgs::msg::Float64 latency;
