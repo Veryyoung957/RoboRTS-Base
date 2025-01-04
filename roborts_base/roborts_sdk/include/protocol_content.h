@@ -266,12 +266,12 @@ typedef struct {
 #define CMD_SET_GIMBAL_CMD           (0x06u)
 typedef struct
 {
-  double pitch;
-  double yaw;
-  double yaw_diff;
-  double pitch_diff;
-  double distance;
-  bool fire_advice;
+  int16_t pitch;
+  int16_t yaw;
+  int16_t yaw_diff;
+  int16_t pitch_diff;
+  int16_t distance;
+  uint8_t fire_advice;
 }cmd_gimbal_cmd;
 
 #define CMD_SET_TARGET           (0x07u)

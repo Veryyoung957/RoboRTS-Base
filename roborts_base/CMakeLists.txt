@@ -17,6 +17,7 @@ find_package(std_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(roborts_msgs REQUIRED)
+# find_package(auto_aim_interfaces REQUIRED)
 find_package(Threads REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
@@ -24,6 +25,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(Glog REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(visualization_msgs REQUIRED)
+find_package(rm_interfaces REQUIRED)
 # Include subdirectory
 # Declare a ROS 2 executable
 add_executable(roborts_base_node
@@ -46,12 +48,14 @@ ament_target_dependencies(roborts_base_node
   tf2_ros
   tf2
   roborts_msgs
+  # auto_aim_interfaces
   Threads
   nav_msgs
   tf2_geometry_msgs
   geometry_msgs
   std_srvs
   visualization_msgs
+  rm_interfaces
 )
 
 add_dependencies(roborts_base_node
@@ -64,8 +68,10 @@ target_include_directories(roborts_base_node PUBLIC
   ${tf2_ros_INCLUDE_DIRS}
   ${tf2_INCLUDE_DIRS}
   ${roborts_msgs_INCLUDE_DIRS}
+  # ${auto_aim_interfaces_INCLUDE_DIRS}
   ${std_srvs_INCLUDE_DIRS}
   ${visualization_msgs_INCLUDE_DIRS}
+  ${rm_interfaces_INCLUDE_DIRS}
   roborts_sdk/include
 )
 # ROS 2 exports and installations

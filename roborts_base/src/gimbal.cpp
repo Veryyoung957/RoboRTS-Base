@@ -97,13 +97,17 @@ namespace roborts_base
   {
 
     // ros subscriber
-    ros_sub_cmd_gimbal_angle_ = this->create_subscription<roborts_msgs::msg::GimbalAngle>(
-        "cmd_gimbal_angle", rclcpp::SystemDefaultsQoS(),
-        std::bind(&Gimbal::GimbalAngleCtrlCallback, this, std::placeholders::_1));
+    ros_sub_cmd_gimbal_angle_ = this->create_subscription<rm_interfaces::msg::GimbalCmd>(
+        "armor_solver/cmd_gimbal", rclcpp::SystemDefaultsQoS(),
+        std::bind(&Gimbal::GimbalCmdCtrlCallback, this, std::placeholders::_1));
 
-    ros_sub_target_ = this->create_subscription<roborts_msgs::msg::Target>(
-        "/tracker/target", rclcpp::SensorDataQoS(),
-        std::bind(&Gimbal::TargetCallback, this, std::placeholders::_1));
+    // ros_sub_target_ = this->create_subscription<auto_aim_interfaces::msg::Target>(
+    //     "/tracker/target", rclcpp::SensorDataQoS(),
+    //     std::bind(&Gimbal::TargetCallback, this, std::placeholders::_1));
+
+    // gimble_angle_pub_= this->create_subscription<rm_interfaces::msg::GimbalCmd>(
+    //     "armor_solver/cmd_gimbal", rclcpp::SensorDataQoS(),
+    //     std::bind(&Gimbal::TargetCallback, this, std::placeholders::_1));
 
     aim_position_pub_ = this->create_publisher<visualization_msgs::msg::Marker>("/aiming_point", 10);
     latency_pub_ = this->create_publisher<std_msgs::msg::Float64>("/latency", 10);
@@ -166,28 +170,42 @@ namespace roborts_base
     tf_broadcaster_->sendTransform(t);
   }
 
-  void Gimbal::GimbalAngleCtrlCallback(const roborts_msgs::msg::GimbalAngle::ConstPtr &msg)
-  {
+  // void Gimbal::GimbalAngleCtrlCallback(const rm_interfaces::msg::GimbalCmd::ConstPtr &msg)
+  // {
 
-    roborts_sdk::cmd_gimbal_angle gimbal_angle;
-    gimbal_angle.ctrl.bit.pitch_mode = msg->pitch_mode;
-    gimbal_angle.ctrl.bit.yaw_mode = msg->yaw_mode;
-    gimbal_angle.pitch = msg->pitch_angle * 1800 / M_PI;
-    gimbal_angle.yaw = msg->yaw_angle * 1800 / M_PI;
+  //   roborts_sdk::cmd_gimbal_angle gimbal_angle;
+  //   gimbal_angle.ctrl.bit.pitch_mode = 0;
+  //   gimbal_angle.ctrl.bit.yaw_mode = 0;
+  //   gimbal_angle.pitch = msg->pitch * 1024;
+  //   gimbal_angle.yaw = msg->yaw * 1024;
 
-    gimbal_angle_pub_->Publish(gimbal_angle);
-  }
+  //   gimbal_angle_pub_->Publish(gimbal_angle);
+  //   RCLCPP_INFO(this->get_logger(), "GimbalAngle publish pitch=%f yaw=%f", msg->pitch,msg->yaw);
+  // }
+
+
+  // void Gimbal::GimbalAngleCtrlCallback(const roborts_msgs::msg::GimbalAngle::ConstPtr &msg)
+  // {
+
+  //   roborts_sdk::cmd_gimbal_angle gimbal_angle;
+  //   gimbal_angle.ctrl.bit.pitch_mode = msg->pitch_mode;
+  //   gimbal_angle.ctrl.bit.yaw_mode = msg->yaw_mode;
+  //   gimbal_angle.pitch = msg->pitch_angle * 1800 / M_PI;
+  //   gimbal_angle.yaw = msg->yaw_angle * 1800 / M_PI;
+
+  //   gimbal_angle_pub_->Publish(gimbal_angle);
+  // }
   
 
-  void Gimbal::GimbalCmdCtrlCallback(const roborts_msgs::msg::GimbalCmd::ConstPtr &msg)
+  void Gimbal::GimbalCmdCtrlCallback(const rm_interfaces::msg::GimbalCmd::ConstPtr &msg)
   {
 
     roborts_sdk::cmd_gimbal_cmd gimbal_cmd;
-    gimbal_cmd.pitch = msg->pitch * 1800 / M_PI;
-    gimbal_cmd.yaw = msg->yaw * 1800 / M_PI;
-    gimbal_cmd.pitch_diff = msg->pitch_diff;
-    gimbal_cmd.yaw_diff = msg->yaw_diff;
-    gimbal_cmd.distance = msg->distance;
+    gimbal_cmd.pitch = msg->pitch * 10;
+    gimbal_cmd.yaw = msg->yaw * 10;
+    gimbal_cmd.pitch_diff = msg->pitch_diff * 10;
+    gimbal_cmd.yaw_diff = msg->yaw_diff * 10;
+    gimbal_cmd.distance = msg->distance * 1000;
     gimbal_cmd.fire_advice = msg->fire_advice;
 
     gimbal_cmd_pub_->Publish(gimbal_cmd);
@@ -215,38 +233,38 @@ namespace roborts_base
     aim_position_pub_->publish(aim_position);
   }
 
-    void Gimbal::TargetCallback(const roborts_msgs::msg::Target::ConstPtr &msg)
-  {
-    const static std::map<std::string, uint8_t> id_unit8_map{
-      {"", 0},  {"outpost", 0}, {"1", 1}, {"1", 1},     {"2", 2},
-      {"3", 3}, {"4", 4},       {"5", 5}, {"guard", 6}, {"base", 7}};
+  //   void Gimbal::TargetCallback(const auto_aim_interfaces::msg::Target::ConstPtr &msg)
+  // {
+  //   const static std::map<std::string, uint8_t> id_unit8_map{
+  //     {"", 0},  {"outpost", 0}, {"1", 1}, {"1", 1},     {"2", 2},
+  //     {"3", 3}, {"4", 4},       {"5", 5}, {"guard", 6}, {"base", 7}};
 
-    roborts_sdk::cmd_target target;
-    target.ctrl.bit.tracking = msg->tracking;
-    target.ctrl.bit.id = id_unit8_map.at(msg->id);
-    target.ctrl.bit.armors_num = msg->armors_num;
-    // 三维空间中的位置
-    target.x = msg->position.x;
-    target.y = msg->position.y;
-    target.z = msg->position.z;
-    target.yaw = msg->yaw;
-    // 三维空间中的速度
-    target.vx = msg->position.x;
-    target.vy = msg->position.y;
-    target.vz = msg->position.z;
-    target.v_yaw = msg->v_yaw;
-    target.r1 = msg->radius_1;
-    target.r2 = msg->radius_2;
-    target.dz = msg->dz; // 高度差
+  //   roborts_sdk::cmd_target target;
+  //   target.ctrl.bit.tracking = msg->tracking;
+  //   target.ctrl.bit.id = id_unit8_map.at(msg->id);
+  //   target.ctrl.bit.armors_num = msg->armors_num;
+  //   // 三维空间中的位置
+  //   target.x = msg->position.x;
+  //   target.y = msg->position.y;
+  //   target.z = msg->position.z;
+  //   target.yaw = msg->yaw;
+  //   // 三维空间中的速度
+  //   target.vx = msg->position.x;
+  //   target.vy = msg->position.y;
+  //   target.vz = msg->position.z;
+  //   target.v_yaw = msg->v_yaw;
+  //   target.r1 = msg->radius_1;
+  //   target.r2 = msg->radius_2;
+  //   target.dz = msg->dz; // 高度差
 
-    RCLCPP_INFO(get_logger(), "target_cmd_pub_  send");
-    target_cmd_pub_->Publish(target);
+  //   RCLCPP_INFO(this->get_logger(), "target_cmd_pub_  send");
+  //   target_cmd_pub_->Publish(target);
 
-    std_msgs::msg::Float64 latency;
-    latency.data = (this->now() - msg->header.stamp).seconds() * 1000.0;
-    RCLCPP_DEBUG_STREAM(get_logger(), "Total latency: " + std::to_string(latency.data) + "ms");
-    latency_pub_->publish(latency);
-  }
+  //   std_msgs::msg::Float64 latency;
+  //   latency.data = (this->now() - msg->header.stamp).seconds() * 1000.0;
+  //   RCLCPP_DEBUG_STREAM(get_logger(), "Total latency: " + std::to_string(latency.data) + "ms");
+  //   latency_pub_->publish(latency);
+  // }
 
   void Gimbal::resetTracker()
   {
@@ -257,7 +275,7 @@ namespace roborts_base
 
     auto request = std::make_shared<std_srvs::srv::Trigger::Request>();
     reset_tracker_client_->async_send_request(request);
-    RCLCPP_INFO(get_logger(), "Reset tracker!");
+    RCLCPP_INFO(this->get_logger(), "Reset tracker!");
   }
 
   bool Gimbal::CtrlFricWheelService(const std::shared_ptr<roborts_msgs::srv::FricWhl::Request> &req,

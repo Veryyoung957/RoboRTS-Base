@@ -56,7 +56,7 @@ class Gimbal: public Module {
    * @brief Gimbal angle control callback in ROS
    * @param msg Gimbal angle control data
    */
-  void GimbalAngleCtrlCallback(const roborts_msgs::msg::GimbalAngle::ConstPtr &msg);
+  // void GimbalAngleCtrlCallback(const roborts_msgs::msg::GimbalAngle::ConstPtr &msg);
   /**
    * @brief Control friction wheel service callback in ROS
    * @param req Friction wheel control data as request
@@ -66,12 +66,14 @@ class Gimbal: public Module {
 
   void GimbalTFCallback(const std::shared_ptr<roborts_sdk::cmd_rpy> gimbal_tf);
 
-  void GimbalCmdCtrlCallback(const roborts_msgs::msg::GimbalCmd::ConstPtr &msg);
+  void GimbalCmdCtrlCallback(const rm_interfaces::msg::GimbalCmd::ConstPtr &msg);
+
+  // void GimbalAngleCtrlCallback(const rm_interfaces::msg::GimbalCmd::ConstPtr &msg);
 
   void RpyCmdCtrlCallback(const std::shared_ptr<roborts_sdk::cmd_rpy> &msg);
   void AimPositionCmdCtrlCallback(const std::shared_ptr<visualization_msgs::msg::Marker> &msg);
 
-  void TargetCallback(const roborts_msgs::msg::Target::ConstPtr &msg);
+  // void TargetCallback(const auto_aim_interfaces::msg::Target::ConstPtr &msg);
 
   bool CtrlFricWheelService(const std::shared_ptr<roborts_msgs::srv::FricWhl::Request> &req,
                                     std::shared_ptr<roborts_msgs::srv::FricWhl::Response> &res);
@@ -118,9 +120,9 @@ class Gimbal: public Module {
   //! ros node handler
   //rclcpp::NodeHandle    ros_nh_;
   //! ros subscriber for gimbal angle control
-  rclcpp::Subscription<roborts_msgs::msg::GimbalAngle>::SharedPtr    ros_sub_cmd_gimbal_angle_;
+  rclcpp::Subscription<rm_interfaces::msg::GimbalCmd>::SharedPtr    ros_sub_cmd_gimbal_angle_;
 
-  rclcpp::Subscription<roborts_msgs::msg::Target>::SharedPtr    ros_sub_target_;
+  // rclcpp::Subscription<auto_aim_interfaces::msg::Target>::SharedPtr    ros_sub_target_;
   //! ros service server for friction wheel control
   rclcpp::Service<roborts_msgs::srv::FricWhl>::SharedPtr ros_ctrl_fric_wheel_srv_;
   //! ros service server for gimbal shoot control
@@ -137,6 +139,7 @@ class Gimbal: public Module {
   rclcpp::Publisher<roborts_msgs::msg::Rpy>::SharedPtr   rpy_pub_ ;
   rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr    aim_position_pub_ ;
   rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr    latency_pub_ ;
+  
 
  
   // ros subscription

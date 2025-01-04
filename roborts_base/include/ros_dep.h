@@ -37,6 +37,7 @@
 #include "roborts_msgs/srv/fric_whl.hpp"
 #include "roborts_msgs/msg/gimbal_cmd.hpp"
 #include "std_srvs/srv/trigger.hpp"
+// #include "auto_aim_interfaces/msg/target.hpp"
 
 //! Referee System
 #include "roborts_msgs/msg/game_result.hpp"
@@ -57,4 +58,5 @@
 #include "roborts_msgs/msg/aiming_point.hpp"
 #include "visualization_msgs/msg/marker.hpp"
 #include "std_msgs/msg/float64.hpp"
+#include "rm_interfaces/msg/gimbal_cmd.hpp"
 #endif //ROBORTS_BASE_ROS_DEP_H
