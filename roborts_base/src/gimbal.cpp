@@ -41,6 +41,7 @@ namespace roborts_base
                                                                                                       MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);
     roborts_sdk::cmd_version_id version_cmd;
     version_cmd.version_id = 0;
+    Gimbal::shoot_state=roborts_sdk::SHOOT_STOP;
     auto version = std::make_shared<roborts_sdk::cmd_version_id>(version_cmd);
     verison_client_->AsyncSendRequest(version,
                                       [this](roborts_sdk::Client<roborts_sdk::cmd_version_id,
@@ -201,6 +202,9 @@ namespace roborts_base
   {
 
     roborts_sdk::cmd_gimbal_cmd gimbal_cmd;
+    roborts_sdk::cmd_shoot_info gimbal_shoot;
+    uint16_t default_freq = 1500;
+
     gimbal_cmd.pitch = msg->pitch * 10;
     gimbal_cmd.yaw = msg->yaw * 10;
     gimbal_cmd.pitch_diff = msg->pitch_diff * 10;
@@ -208,7 +212,23 @@ namespace roborts_base
     gimbal_cmd.distance = msg->distance * 1000;
     gimbal_cmd.fire_advice = msg->fire_advice;
 
+    if(gimbal_cmd.distance<0 && Gimbal::shoot_state!=roborts_sdk::SHOOT_STOP){
+      gimbal_shoot.shoot_cmd = roborts_sdk::SHOOT_STOP;
+      gimbal_shoot.shoot_add_num = 0;
+      gimbal_shoot.shoot_freq = 0;
+      gimbal_shoot_pub_->Publish(gimbal_shoot);
+      Gimbal::shoot_state=roborts_sdk::SHOOT_STOP;
+    }
+    else{
+      gimbal_shoot.shoot_cmd = roborts_sdk::SHOOT_CONTINUOUS;
+      gimbal_shoot.shoot_add_num = 1;
+      gimbal_shoot.shoot_freq = default_freq;
+      gimbal_shoot_pub_->Publish(gimbal_shoot);
+      Gimbal::shoot_state=roborts_sdk::SHOOT_CONTINUOUS;
+    }
+
     gimbal_cmd_pub_->Publish(gimbal_cmd);
+    
   }
 
   void Gimbal::RpyCmdCtrlCallback(const std::shared_ptr<roborts_sdk::cmd_rpy> &msg)

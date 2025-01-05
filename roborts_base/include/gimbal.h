@@ -149,6 +149,8 @@ class Gimbal: public Module {
   // ros client
   rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr    reset_tracker_client_;
 
+  uint8_t shoot_state;
+
 };
 // REGISTER_MODULE(Module, "gimbal", Gimbal, std::shared_ptr<roborts_sdk::Handle>);
 }
