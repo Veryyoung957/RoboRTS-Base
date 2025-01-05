@@ -41,6 +41,7 @@ namespace roborts_base
                                                                                                       MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);
     roborts_sdk::cmd_version_id version_cmd;
     version_cmd.version_id = 0;
+    Gimbal::shoot_state=roborts_sdk::SHOOT_STOP;
     auto version = std::make_shared<roborts_sdk::cmd_version_id>(version_cmd);
     verison_client_->AsyncSendRequest(version,
                                       [this](roborts_sdk::Client<roborts_sdk::cmd_version_id,
@@ -101,8 +102,13 @@ namespace roborts_base
         "cmd_gimbal_angle", rclcpp::SystemDefaultsQoS(),
         std::bind(&Gimbal::GimbalAngleCtrlCallback, this, std::placeholders::_1));
 
+    ros_sub_target_up_ = this->create_subscription<roborts_msgs::msg::Target>(
+        "target_target_up", rclcpp::SystemDefaultsQoS(),
+        std::bind(&Gimbal::TargetUpCallback, this, std::placeholders::_1));
+
     aim_position_pub_ = this->create_publisher<visualization_msgs::msg::Marker>("/aiming_point", 10);
     latency_pub_ = this->create_publisher<std_msgs::msg::Float64>("/latency", 10);
+    target_down_pub_ = this->create_publisher<roborts_msgs::msg::Target>("target", 10);
 
     tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
     // Services
@@ -167,11 +173,13 @@ namespace roborts_base
     gimbal_angle_pub_->Publish(gimbal_angle);
   }
   
-
   void Gimbal::GimbalCmdCtrlCallback(const roborts_msgs::msg::GimbalCmd::ConstPtr &msg)
   {
 
     roborts_sdk::cmd_gimbal_cmd gimbal_cmd;
+    roborts_sdk::cmd_shoot_info gimbal_shoot;
+    uint16_t default_freq = 1500;
+
     gimbal_cmd.pitch = msg->pitch * 1800 / M_PI;
     gimbal_cmd.yaw = msg->yaw * 1800 / M_PI;
     gimbal_cmd.pitch_diff = msg->pitch_diff;
@@ -179,7 +187,22 @@ namespace roborts_base
     gimbal_cmd.distance = msg->distance;
     gimbal_cmd.fire_advice = msg->fire_advice;
 
+    if(gimbal_cmd.distance<0 && Gimbal::shoot_state!=roborts_sdk::SHOOT_STOP){ 
+      gimbal_shoot.shoot_cmd = roborts_sdk::SHOOT_STOP;
+      gimbal_shoot.shoot_add_num = 0;
+      gimbal_shoot.shoot_freq = 0;
+      gimbal_shoot_pub_->Publish(gimbal_shoot);
+      Gimbal::shoot_state=roborts_sdk::SHOOT_STOP;
+    }
+    else{
+      gimbal_shoot.shoot_cmd = roborts_sdk::SHOOT_CONTINUOUS;
+      gimbal_shoot.shoot_add_num = 1;
+      gimbal_shoot.shoot_freq = default_freq;
+      gimbal_shoot_pub_->Publish(gimbal_shoot);
+      Gimbal::shoot_state=roborts_sdk::SHOOT_CONTINUOUS;
+    }
     gimbal_cmd_pub_->Publish(gimbal_cmd);
+    
   }
 
   void Gimbal::RpyCmdCtrlCallback(const std::shared_ptr<roborts_sdk::cmd_rpy> &msg)
@@ -229,6 +252,38 @@ namespace roborts_base
     target.dz = msg->dz; // 高度差
 
     target_cmd_pub_->Publish(target);
+
+    std_msgs::msg::Float64 latency;
+    latency.data = (this->now() - msg->header.stamp).seconds() * 1000.0;
+    RCLCPP_DEBUG_STREAM(get_logger(), "Total latency: " + std::to_string(latency.data) + "ms");
+    latency_pub_->publish(latency);
+  }
+
+void Gimbal::TargetUpCallback(const roborts_msgs::msg::Target::ConstPtr &msg)
+  {
+    const static std::map<std::string, uint8_t> id_unit8_map{
+      {"", 0},  {"outpost", 0}, {"1", 1}, {"1", 1},     {"2", 2},
+      {"3", 3}, {"4", 4},       {"5", 5}, {"guard", 6}, {"base", 7}};
+
+    roborts_sdk::cmd_target target_up;
+    target_up.tracking = msg->tracking;
+    target_up.id = id_unit8_map.at(msg->id);
+    target_up.armors_num = msg->armors_num;
+    // 三维空间中的位置
+    target_up.x = msg->position.x;
+    target_up.y = msg->position.y;
+    target_up.z = msg->position.z;
+    target_up.yaw = msg->yaw;
+    // 三维空间中的速度
+    target_up.vx = msg->position.x;
+    target_up.vy = msg->position.y;
+    target_up.vz = msg->position.z;
+    target_up.v_yaw = msg->v_yaw;
+    target_up.r1 = msg->radius_1;
+    target_up.r2 = msg->radius_2;
+    target_up.dz = msg->dz; // 高度差
+
+    target_up_pub_->Publish(target_up);
 
     std_msgs::msg::Float64 latency;
     latency.data = (this->now() - msg->header.stamp).seconds() * 1000.0;

@@ -213,6 +213,7 @@ typedef struct {
  *  msg_type: cmd_gimbal_angle
  *  session:  no ack
  */
+
 #define CMD_SET_GIMBAL_ANGLE           (0x03u)
 typedef struct{
   union{

@@ -69,9 +69,11 @@ class Gimbal: public Module {
   void GimbalCmdCtrlCallback(const roborts_msgs::msg::GimbalCmd::ConstPtr &msg);
 
   void RpyCmdCtrlCallback(const std::shared_ptr<roborts_sdk::cmd_rpy> &msg);
+
   void AimPositionCmdCtrlCallback(const std::shared_ptr<visualization_msgs::msg::Marker> &msg);
 
   void TargetCallback(const roborts_msgs::msg::Target::ConstPtr &msg);
+  void TargetUpCallback(const roborts_msgs::msg::Target::ConstPtr &msg);
 
   bool CtrlFricWheelService(const std::shared_ptr<roborts_msgs::srv::FricWhl::Request> &req,
                                     std::shared_ptr<roborts_msgs::srv::FricWhl::Response> &res);
@@ -107,6 +109,7 @@ class Gimbal: public Module {
   std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_gimbal_cmd>>     gimbal_cmd_pub_;
 
   std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_target>>     target_cmd_pub_;
+  std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_target>>     target_up_pub_;
 
   // sdk subscription
   // std::shared_ptr<roborts_sdk::Subscription<roborts_sdk::cmd_target>>       auto_aim_cmd_;
@@ -119,6 +122,8 @@ class Gimbal: public Module {
   //rclcpp::NodeHandle    ros_nh_;
   //! ros subscriber for gimbal angle control
   rclcpp::Subscription<roborts_msgs::msg::GimbalAngle>::SharedPtr    ros_sub_cmd_gimbal_angle_;
+
+  rclcpp::Subscription<roborts_msgs::msg::Target>::SharedPtr    ros_sub_target_up_;
   //! ros service server for friction wheel control
   rclcpp::Service<roborts_msgs::srv::FricWhl>::SharedPtr ros_ctrl_fric_wheel_srv_;
   //! ros service server for gimbal shoot control
@@ -133,10 +138,13 @@ class Gimbal: public Module {
   rclcpp::Subscription<roborts_msgs::msg::GimbalCmd>::SharedPtr    ros_sub_cmd_gimbal_cmd_ ;
 
   rclcpp::Publisher<roborts_msgs::msg::Rpy>::SharedPtr   rpy_pub_ ;
+
   rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr    aim_position_pub_ ;
   rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr    latency_pub_ ;
 
- 
+  rclcpp::Publisher<roborts_msgs::msg::Target>::SharedPtr    target_down_pub_ ;
+
+  uint8_t shoot_state;
   // ros subscription
   rclcpp::Subscription<roborts_msgs::msg::Rpy>::SharedPtr    ros_sub_rpy_cmd_ ;
   rclcpp::Subscription<roborts_msgs::msg::AimingPoint>::SharedPtr    ros_sub_aim_position_cmd_ ;
