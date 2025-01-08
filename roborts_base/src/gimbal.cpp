@@ -66,9 +66,9 @@ namespace roborts_base
                                                             GIMBAL_ADDRESS, BROADCAST_ADDRESS,
                                                             std::bind(&Gimbal::AimPositionCmdCtrlCallback, this, std::placeholders::_1));
     
-    handle_->CreateSubscriber<rm_interfaces::msg::Target>(GIMBAL_CMD_SET, CMD_SET_TARGET,
+    handle_->CreateSubscriber<roborts_sdk::cmd_target>(GIMBAL_CMD_SET, CMD_SET_TARGET,
                                                             GIMBAL_ADDRESS, BROADCAST_ADDRESS,
-                                                            std::bind(&Gimbal::AimPositionCmdCtrlCallback, this, std::placeholders::_1));
+                                                            std::bind(&Gimbal::AnotherTargetCallback, this, std::placeholders::_1));
 
     gimbal_angle_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_gimbal_angle>(GIMBAL_CMD_SET, CMD_SET_GIMBAL_ANGLE,
                                                                                 MANIFOLD1_ADDRESS, GIMBAL_ADDRESS);
@@ -257,13 +257,46 @@ namespace roborts_base
     aim_position_pub_->publish(aim_position);
   }
 
-    void Gimbal::TargetCallback(const rm_interfaces::msg::Target::ConstPtr &msg)
+  void Gimbal::TargetCallback(const rm_interfaces::msg::Target::ConstPtr &msg)
   {
     const static std::map<std::string, uint8_t> id_unit8_map{
       {"", 0},  {"outpost", 0}, {"1", 1}, {"1", 1},     {"2", 2},
       {"3", 3}, {"4", 4},       {"5", 5}, {"guard", 6}, {"base", 7}};
 
-    roborts_sdk::cmd_target target;
+    roborts_sdk::cmd_target target; 
+    target.ctrl.bit.tracking = msg->tracking;
+    target.ctrl.bit.id = id_unit8_map.at(msg->id);
+    target.ctrl.bit.armors_num = msg->armors_num;
+    // 三维空间中的位置
+    target.x = msg->position.x;
+    target.y = msg->position.y;
+    target.z = msg->position.z;
+    target.yaw = msg->yaw;
+    // 三维空间中的速度
+    target.vx = msg->position.x;
+    target.vy = msg->position.y;
+    target.vz = msg->position.z;
+    target.v_yaw = msg->v_yaw;
+    target.r1 = msg->radius_1;
+    target.r2 = msg->radius_2;
+    target.dz = msg->dz; // 高度差
+
+    RCLCPP_INFO(this->get_logger(), "target_cmd_pub_  send");
+    target_cmd_pub_->Publish(target);
+
+    std_msgs::msg::Float64 latency;
+    latency.data = (this->now() - msg->header.stamp).seconds() * 1000.0;
+    RCLCPP_DEBUG_STREAM(get_logger(), "Total latency: " + std::to_string(latency.data) + "ms");
+    latency_pub_->publish(latency);
+  }
+
+  void Gimbal::AnotherTargetCallback(const roborts_sdk::cmd_target::ConstPtr &msg)
+  {
+    const static std::map<std::string, uint8_t> id_unit8_map{
+      {"", 0},  {"outpost", 0}, {"1", 1}, {"1", 1},     {"2", 2},
+      {"3", 3}, {"4", 4},       {"5", 5}, {"guard", 6}, {"base", 7}};
+
+    roborts_sdk::cmd_target target; 
     target.ctrl.bit.tracking = msg->tracking;
     target.ctrl.bit.id = id_unit8_map.at(msg->id);
     target.ctrl.bit.armors_num = msg->armors_num;

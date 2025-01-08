@@ -74,6 +74,7 @@ class Gimbal: public Module {
   void AimPositionCmdCtrlCallback(const std::shared_ptr<visualization_msgs::msg::Marker> &msg);
 
   void TargetCallback(const rm_interfaces::msg::Target::ConstPtr &msg);
+  void AnotherTargetCallback(const roborts_sdk::cmd_target::ConstPtr &msg);
 
   bool CtrlFricWheelService(const std::shared_ptr<roborts_msgs::srv::FricWhl::Request> &req,
                                     std::shared_ptr<roborts_msgs::srv::FricWhl::Response> &res);
