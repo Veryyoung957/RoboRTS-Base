@@ -294,9 +294,10 @@ typedef struct
   float vy; 
   float vz; 
   float v_yaw; 
-  float r1; 
-  float r2; 
-  float dz; 
+  float radius_1; 
+  float radius_2; 
+  float d_za; 
+  float d_zc;
 }cmd_target;
 
 #define CMD_SET_RPY           (0x08u)
