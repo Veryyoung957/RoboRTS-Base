@@ -298,6 +298,8 @@ typedef struct
   float radius_2; 
   float d_za; 
   float d_zc;
+  float yaw_diff;
+  float position_diff;
 }cmd_target;
 
 #define CMD_SET_RPY           (0x08u)

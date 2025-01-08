@@ -74,7 +74,7 @@ class Gimbal: public Module {
   void AimPositionCmdCtrlCallback(const std::shared_ptr<visualization_msgs::msg::Marker> &msg);
 
   void TargetCallback(const rm_interfaces::msg::Target::ConstPtr &msg);
-  void AnotherTargetCallback(const roborts_sdk::cmd_target::ConstPtr &msg);
+  void AnotherTargetCallback(const std::shared_ptr<roborts_sdk::cmd_target> &msg);
 
   bool CtrlFricWheelService(const std::shared_ptr<roborts_msgs::srv::FricWhl::Request> &req,
                                     std::shared_ptr<roborts_msgs::srv::FricWhl::Response> &res);
@@ -109,7 +109,7 @@ class Gimbal: public Module {
 
   std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_gimbal_cmd>>     gimbal_cmd_pub_;
 
-  std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_target>>     target_cmd_pub_;
+  std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_target>>     target_pub_;
 
   // sdk subscription
   // std::shared_ptr<roborts_sdk::Subscription<roborts_sdk::cmd_target>>       auto_aim_cmd_;
@@ -141,6 +141,7 @@ class Gimbal: public Module {
   rclcpp::Publisher<roborts_msgs::msg::Rpy>::SharedPtr   rpy_pub_ ;
   rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr    aim_position_pub_ ;
   rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr    latency_pub_ ;
+  rclcpp::Publisher<rm_interfaces::msg::Target>::SharedPtr    another_target_pub_ ;
   
 
  
