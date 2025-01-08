@@ -73,7 +73,7 @@ class Gimbal: public Module {
   void RpyCmdCtrlCallback(const std::shared_ptr<roborts_sdk::cmd_rpy> &msg);
   void AimPositionCmdCtrlCallback(const std::shared_ptr<visualization_msgs::msg::Marker> &msg);
 
-  // void TargetCallback(const auto_aim_interfaces::msg::Target::ConstPtr &msg);
+  void TargetCallback(const rm_interfaces::msg::Target::ConstPtr &msg);
 
   bool CtrlFricWheelService(const std::shared_ptr<roborts_msgs::srv::FricWhl::Request> &req,
                                     std::shared_ptr<roborts_msgs::srv::FricWhl::Response> &res);
@@ -135,6 +135,7 @@ class Gimbal: public Module {
 
   // ros gimbalcmd
   rclcpp::Subscription<roborts_msgs::msg::GimbalCmd>::SharedPtr    ros_sub_cmd_gimbal_cmd_ ;
+  rclcpp::Subscription<rm_interfaces::msg::Target>::SharedPtr      target_sub_ ;
 
   rclcpp::Publisher<roborts_msgs::msg::Rpy>::SharedPtr   rpy_pub_ ;
   rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr    aim_position_pub_ ;

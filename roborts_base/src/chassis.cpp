@@ -32,7 +32,7 @@ void Chassis::SDK_Init(){
 
   verison_client_ = handle_->CreateClient<roborts_sdk::cmd_version_id,roborts_sdk::cmd_version_id>
       (UNIVERSAL_CMD_SET, CMD_REPORT_VERSION,
-       MANIFOLD2_ADDRESS, CHASSIS_ADDRESS);
+       MANIFOLD1_ADDRESS, CHASSIS_ADDRESS);
   roborts_sdk::cmd_version_id version_cmd;
   version_cmd.version_id=0;
   auto version = std::make_shared<roborts_sdk::cmd_version_id>(version_cmd);
@@ -50,16 +50,16 @@ void Chassis::SDK_Init(){
   //                                                          CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
   //                                                          std::bind(&Chassis::ChassisInfoCallback, this, std::placeholders::_1));
   handle_->CreateSubscriber<roborts_sdk::cmd_uwb_info>(COMPATIBLE_CMD_SET, CMD_PUSH_UWB_INFO,
-                                                       CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
+                                                       CHASSIS_ADDRESS, MANIFOLD1_ADDRESS,
                                                        std::bind(&Chassis::UWBInfoCallback, this, std::placeholders::_1));
 
   chassis_speed_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_chassis_speed>(CHASSIS_CMD_SET, CMD_SET_CHASSIS_SPEED,
-                                                                                MANIFOLD2_ADDRESS, CHASSIS_ADDRESS);
+                                                                                MANIFOLD1_ADDRESS, CHASSIS_ADDRESS);
   chassis_spd_acc_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_chassis_spd_acc>(CHASSIS_CMD_SET, CMD_SET_CHASSIS_SPD_ACC,
-                                                                                    MANIFOLD2_ADDRESS, CHASSIS_ADDRESS);
+                                                                                    MANIFOLD1_ADDRESS, CHASSIS_ADDRESS);
 
   heartbeat_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_heartbeat>(UNIVERSAL_CMD_SET, CMD_HEARTBEAT,
-                                                                        MANIFOLD2_ADDRESS, CHASSIS_ADDRESS);
+                                                                        MANIFOLD1_ADDRESS, CHASSIS_ADDRESS);
   // heartbeat_thread_ = std::thread([this]{
   //                                   roborts_sdk::cmd_heartbeat heartbeat;
   //                                   heartbeat.heartbeat=0;

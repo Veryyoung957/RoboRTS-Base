@@ -24,6 +24,7 @@ namespace roborts_sdk {
 #define MANIFOLD2_ADDRESS              (0x00u)
 #define CHASSIS_ADDRESS                (0X01u)
 #define GIMBAL_ADDRESS                 (0X02u)
+#define MANIFOLD1_ADDRESS              (0x03u)
 #define BROADCAST_ADDRESS              (0Xffu)
 
 //CMD_SET                            

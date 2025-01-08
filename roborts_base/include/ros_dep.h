@@ -59,4 +59,5 @@
 #include "visualization_msgs/msg/marker.hpp"
 #include "std_msgs/msg/float64.hpp"
 #include "rm_interfaces/msg/gimbal_cmd.hpp"
+#include "rm_interfaces/msg/target.hpp"
 #endif //ROBORTS_BASE_ROS_DEP_H

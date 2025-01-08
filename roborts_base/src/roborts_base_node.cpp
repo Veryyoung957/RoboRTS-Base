@@ -37,7 +37,7 @@ int main(int argc, char **argv)
   // config.GetParam();
   // create sdk handler
   // auto handle = std::make_shared<roborts_sdk::Handle>(config.serial_port);
-  auto handle = std::make_shared<roborts_sdk::Handle>("/dev/ttyACM0");
+  auto handle = std::make_shared<roborts_sdk::Handle>("/dev/ttyCBoard");
   if (!handle->Init())
     return 1;
   // list registed module
