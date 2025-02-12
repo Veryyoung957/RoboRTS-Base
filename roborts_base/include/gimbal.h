@@ -153,6 +153,7 @@ class Gimbal: public Module {
   rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr    reset_tracker_client_;
 
   uint8_t shoot_state;
+  double timestamp_offset_ = 0;
 
 };
 // REGISTER_MODULE(Module, "gimbal", Gimbal, std::shared_ptr<roborts_sdk::Handle>);

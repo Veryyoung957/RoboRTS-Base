@@ -114,6 +114,7 @@ namespace roborts_base
     latency_pub_ = this->create_publisher<std_msgs::msg::Float64>("/latency", 10);
     another_target_pub_ = this->create_publisher<rm_interfaces::msg::Target>("/another_target", 10);
 
+    timestamp_offset_ = this->declare_parameter("timestamp_offset", 0.0);
 
     tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
     // Services
@@ -135,6 +136,8 @@ namespace roborts_base
     });
 
     // Message Initialization
+    timestamp_offset_ = this->get_parameter("timestamp_offset").as_double();
+    t.header.stamp = this->now() + rclcpp::Duration::from_seconds(timestamp_offset_);
     gimbal_tf_.header.frame_id = "base_link";
     gimbal_tf_.child_frame_id = "gimbal";
     t.header.frame_id = "odom";
@@ -152,7 +155,7 @@ namespace roborts_base
     gimbal_tf_.transform.rotation = tf2::toMsg(q_1);                            
     gimbal_tf_.transform.translation.x = 0;
     gimbal_tf_.transform.translation.y = 0;
-    gimbal_tf_.transform.translation.z = 0.15;
+    gimbal_tf_.transform.translation.z = 0.65;
     tf_broadcaster_->sendTransform(gimbal_tf_);
     tf2::Quaternion q_2;
     q_2.setRPY(0.0, gimbal_info->pitch_gyro_angle / 1800.0 * M_PI, gimbal_info->yaw_gyro_angle/ 1800.0 * M_PI);
