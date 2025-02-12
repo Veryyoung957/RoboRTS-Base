@@ -470,7 +470,7 @@ class Protocol {
   //! version
   static const uint8_t VERSION = 0x00;
   //! local device address
-  static const uint8_t DEVICE = 0x00;
+  static const uint8_t DEVICE = 0x03;
   //! max number of receiver address
   static const uint8_t RECEIVER_NUM = 6;
 

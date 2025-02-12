@@ -55,30 +55,30 @@ namespace roborts_base
                                       });
 
     handle_->CreateSubscriber<roborts_sdk::cmd_gimbal_info>(GIMBAL_CMD_SET, CMD_PUSH_GIMBAL_INFO,
-                                                            GIMBAL_ADDRESS, BROADCAST_ADDRESS,
+                                                            CHASSIS_ADDRESS, BROADCAST_ADDRESS,
                                                             std::bind(&Gimbal::GimbalInfoCallback, this, std::placeholders::_1));
 
     handle_->CreateSubscriber<roborts_sdk::cmd_rpy>(GIMBAL_CMD_SET, CMD_SET_RPY,
-                                                        GIMBAL_ADDRESS, BROADCAST_ADDRESS,
+                                                        CHASSIS_ADDRESS, BROADCAST_ADDRESS,
                                                         std::bind(&Gimbal::GimbalTFCallback, this, std::placeholders::_1));
     
     handle_->CreateSubscriber<roborts_sdk::cmd_target>(GIMBAL_CMD_SET, CMD_SET_TARGET,
-                                                            GIMBAL_ADDRESS, BROADCAST_ADDRESS,
+                                                            CHASSIS_ADDRESS, BROADCAST_ADDRESS,
                                                             std::bind(&Gimbal::AnotherTargetCallback, this, std::placeholders::_1));
 
     gimbal_angle_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_gimbal_angle>(GIMBAL_CMD_SET, CMD_SET_GIMBAL_ANGLE,
-                                                                                MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);
+                                                                                MANIFOLD1_ADDRESS, CHASSIS_ADDRESS);
 
     gimbal_cmd_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_gimbal_cmd>(GIMBAL_CMD_SET, CMD_SET_GIMBAL_CMD,
-                                                                                MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);  
+                                                                                MANIFOLD1_ADDRESS, CHASSIS_ADDRESS);  
   
     target_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_target>(GIMBAL_CMD_SET, CMD_SET_TARGET,
-                                                                                MANIFOLD2_ADDRESS, MANIFOLD1_ADDRESS);
+                                                                                MANIFOLD1_ADDRESS, MANIFOLD2_ADDRESS);
 
     fric_wheel_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_fric_wheel_speed>(GIMBAL_CMD_SET, CMD_SET_FRIC_WHEEL_SPEED,
-                                                                                  MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);
+                                                                                  MANIFOLD1_ADDRESS, CHASSIS_ADDRESS);
     gimbal_shoot_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_shoot_info>(GIMBAL_CMD_SET, CMD_SET_SHOOT_INFO,
-                                                                              MANIFOLD2_ADDRESS, GIMBAL_ADDRESS);
+                                                                              MANIFOLD1_ADDRESS, CHASSIS_ADDRESS);
 
     // heartbeat_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_heartbeat>(UNIVERSAL_CMD_SET, CMD_HEARTBEAT,
     //                                                                       MANIFOLD1_ADDRESS, CHASSIS_ADDRESS);
@@ -288,29 +288,51 @@ namespace roborts_base
 
   void Gimbal::AnotherTargetCallback(const std::shared_ptr<roborts_sdk::cmd_target> &msg)
   {
-   const static std::array<std::string, 8> id_to_string = {
-    "outpost", "1", "2", "3", "4", "5", "guard", "base"
-    };
-    rm_interfaces::msg::Target target;
-    target.tracking = msg->ctrl.bit.tracking;
-    target.id = id_to_string[msg->ctrl.bit.id];
-    target.armors_num = msg->ctrl.bit.armors_num;
-    // 三维空间中的位置
-    target.position.x = msg->x;
-    target.position.y = msg->y;
-    target.position.z = msg->z;
-    target.yaw = msg->yaw;
-    // 三维空间中的速度
-    target.velocity.x = msg->vx;
-    target.velocity.y = msg->vy;
-    target.velocity.z = msg->vz;
-    target.v_yaw = msg->v_yaw;
-    target.radius_1 = msg->radius_1;
-    target.radius_2 = msg->radius_2;
-    target.d_za = msg->d_za; 
-    target.d_zc = msg->d_zc; 
+      RCLCPP_INFO(this->get_logger(),"Access Successful");
+      if (!msg) {
+          RCLCPP_ERROR(this->get_logger(), "Received null msg in AnotherTargetCallback!");
+          return;
+      }
 
-    another_target_pub_->publish(target);
+      const static std::array<std::string, 8> id_to_string = {
+          "outpost", "1", "2", "3", "4", "5", "guard", "base"
+      };
+
+      rm_interfaces::msg::Target target;
+      target.tracking = msg->ctrl.bit.tracking;
+
+      if (msg->ctrl.bit.id < id_to_string.size()) {
+          target.id = id_to_string[msg->ctrl.bit.id];
+      } else {
+          RCLCPP_WARN(this->get_logger(), "Invalid ID: %d", msg->ctrl.bit.id);
+          target.id = "unknown";
+      }
+
+      target.armors_num = msg->ctrl.bit.armors_num;
+
+      // 三维空间中的位置
+      target.position.x = msg->x;
+      target.position.y = msg->y;
+      target.position.z = msg->z;
+      target.yaw = msg->yaw;
+
+      // 三维空间中的速度
+      target.velocity.x = msg->vx;
+      target.velocity.y = msg->vy;
+      target.velocity.z = msg->vz;
+      target.v_yaw = msg->v_yaw;
+
+      target.radius_1 = msg->radius_1;
+      target.radius_2 = msg->radius_2;
+      target.d_za = msg->d_za;
+      target.d_zc = msg->d_zc;
+
+      if (!another_target_pub_) {
+          RCLCPP_ERROR(this->get_logger(), "another_target_pub_ is null!");
+          return;
+      }
+
+      another_target_pub_->publish(target);
   }
 
   void Gimbal::resetTracker()
