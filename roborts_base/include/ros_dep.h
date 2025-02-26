@@ -37,7 +37,7 @@
 #include "roborts_msgs/srv/fric_whl.hpp"
 #include "roborts_msgs/msg/gimbal_cmd.hpp"
 #include "std_srvs/srv/trigger.hpp"
-// #include "auto_aim_interfaces/msg/target.hpp"
+// #include "rm_interfaces/msg/target.hpp"
 
 //! Referee System
 #include "roborts_msgs/msg/game_result.hpp"
@@ -51,6 +51,7 @@
 #include "roborts_msgs/msg/robot_damage.hpp"
 #include "roborts_msgs/msg/robot_shoot.hpp"
 #include "roborts_msgs/msg/lurk_status.hpp"
+#include "roborts_msgs/msg/robot_sentry_status.hpp"
 
 // auto_aim
 #include "roborts_msgs/msg/target.hpp"

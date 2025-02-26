@@ -68,6 +68,12 @@ void RefereeSystem::SDK_Init() {
                                                                    this,
                                                                    std::placeholders::_1));
 
+  handle_->CreateSubscriber<roborts_sdk::sentry_info>(REFEREE_ROBOT_CMD_SET, SENTEY_INFO,
+                                                         CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
+                                                         std::bind(&RefereeSystem::RobotSentryCallback,
+                                                                   this,
+                                                                   std::placeholders::_1));
+
 }
 void RefereeSystem::ROS_Init() {
   //ros publisher
@@ -84,6 +90,7 @@ void RefereeSystem::ROS_Init() {
   ros_robot_heat_pub_ = this->create_publisher<roborts_msgs::msg::RobotHeat>("robot_heat", 30);
   ros_robot_damage_pub_ = this->create_publisher<roborts_msgs::msg::RobotDamage>("robot_damage", 30);
   ros_robot_shoot_pub_ = this->create_publisher<roborts_msgs::msg::RobotShoot>("robot_shoot", 30);
+  ros_robot_sentry_pub_ = this->create_publisher<roborts_msgs::msg::RobotSentryStatus>("robot_sentry", 30);
 
 }
 
@@ -189,5 +196,20 @@ void RefereeSystem::RobotShootCallback(const std::shared_ptr<roborts_sdk::cmd_sh
   robot_shoot.frequency = raw_robot_shoot->bullet_freq;
   robot_shoot.speed = raw_robot_shoot->bullet_speed;
   ros_robot_shoot_pub_->publish(robot_shoot);
+}
+
+void RefereeSystem::RobotSentryCallback(const std::shared_ptr<roborts_sdk::sentry_info> data){
+  roborts_msgs::msg::RobotSentryStatus msg;
+  msg.is_out_of_combat = data->is_out_of_combat;
+  msg.team_17mm_fire_remaining = data->team_17mm_fire_remaining;
+  msg.reserved_1 = data->reserved_1;
+  msg.allowed_fire_count = data->allowed_fire_count;
+  msg.remote_fire_exchange_count = data->remote_fire_exchange_count;
+  msg.remote_health_exchange_count = data->remote_health_exchange_count;
+  msg.can_confirm_free_revive = data->can_confirm_free_revive;
+  msg.can_exchange_immediate_revive = data->can_exchange_immediate_revive;
+  msg.immediate_revive_cost = data->immediate_revive_cost;
+  msg.reserved = data->reserved_2;
+  ros_robot_sentry_pub_->publish(msg);
 }
 }

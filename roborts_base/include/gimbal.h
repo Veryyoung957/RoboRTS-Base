@@ -123,7 +123,7 @@ class Gimbal: public Module {
   //! ros subscriber for gimbal angle control
   rclcpp::Subscription<rm_interfaces::msg::GimbalCmd>::SharedPtr    ros_sub_cmd_gimbal_angle_;
 
-  // rclcpp::Subscription<auto_aim_interfaces::msg::Target>::SharedPtr    ros_sub_target_;
+  // rclcpp::Subscription<rm_interfaces::msg::Target>::SharedPtr    ros_sub_target_;
   //! ros service server for friction wheel control
   rclcpp::Service<roborts_msgs::srv::FricWhl>::SharedPtr ros_ctrl_fric_wheel_srv_;
   //! ros service server for gimbal shoot control

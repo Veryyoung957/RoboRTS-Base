@@ -65,6 +65,8 @@ class RefereeSystem: public Module {
 
   void RobotShootCallback(const std::shared_ptr<roborts_sdk::cmd_shoot_data> raw_robot_shoot);
 
+  void RobotSentryCallback(const std::shared_ptr<roborts_sdk::sentry_info> raw_sentry_info);
+
   //! ros node handler
   //ros::NodeHandle ros_nh_;
   //! ros subscriber
@@ -79,6 +81,7 @@ class RefereeSystem: public Module {
   rclcpp::Publisher<roborts_msgs::msg::RobotHeat>::SharedPtr ros_robot_heat_pub_;
   rclcpp::Publisher<roborts_msgs::msg::RobotDamage>::SharedPtr ros_robot_damage_pub_;
   rclcpp::Publisher<roborts_msgs::msg::RobotShoot>::SharedPtr ros_robot_shoot_pub_;
+  rclcpp::Publisher<roborts_msgs::msg::RobotSentryStatus>::SharedPtr ros_robot_sentry_pub_;
 
 };
 // REGISTER_MODULE(Module, "referee_system", RefereeSystem, std::shared_ptr<roborts_sdk::Handle>);

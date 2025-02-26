@@ -34,6 +34,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/referee_system/RobotDamage.msg"
   "msg/referee_system/RobotShoot.msg"
   "msg/referee_system/LurkStatus.msg"
+  "msg/referee_system/RobotSentryStatus.msg"
   "srv/gimbal/FricWhl.srv"
   "srv/gimbal/ShootCmd.srv"
 

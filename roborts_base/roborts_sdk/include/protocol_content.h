@@ -532,7 +532,20 @@ typedef struct
   float bullet_speed;
 } cmd_shoot_data;
 
-
+#define SENTEY_INFO                   (0x0D)
+typedef struct
+{
+  unsigned int is_out_of_combat : 1; // bit 0: 哨兵当前是否处于脱战状态
+  unsigned int team_17mm_fire_remaining : 11; // bit 1-11: 队伍 17mm 允许发弹量的剩余可兑换数
+  unsigned int reserved_1 : 4; // bit 12-15: 保留位
+  unsigned int allowed_fire_count : 11;  // bit 16-26: 允许发弹量（不包括远程兑换）
+  unsigned int remote_fire_exchange_count : 4; // bit 27-30: 远程兑换允许发弹量次数
+  unsigned int remote_health_exchange_count : 4; // bit 31-34: 远程兑换血量次数
+  unsigned int can_confirm_free_revive : 1; // bit 35: 是否可以确认免费复活
+  unsigned int can_exchange_immediate_revive : 1; // bit 36: 是否可以兑换立即复活
+  unsigned int immediate_revive_cost : 10; // bit 37-46: 兑换立即复活需要的金币数
+  unsigned int reserved_2 : 17; // bit 47-63: 保留位
+} sentry_info;
 
 /*-----------------------------TEST_CMD---- 0xFF ---------------------*/
 #define TEXT_ECHO_TRANSMIT             (0x00u)
