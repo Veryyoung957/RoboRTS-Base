@@ -55,7 +55,7 @@ namespace roborts_base
                                       });
 
     handle_->CreateSubscriber<roborts_sdk::cmd_gimbal_info>(GIMBAL_CMD_SET, CMD_PUSH_GIMBAL_INFO,
-                                                            CHASSIS_ADDRESS, BROADCAST_ADDRESS,
+                                                            CHASSIS_ADDRESS, MANIFOLD1_ADDRESS,
                                                             std::bind(&Gimbal::GimbalInfoCallback, this, std::placeholders::_1));
 
     handle_->CreateSubscriber<roborts_sdk::cmd_rpy>(GIMBAL_CMD_SET, CMD_SET_RPY,
