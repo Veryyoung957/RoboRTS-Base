@@ -181,13 +181,13 @@ typedef struct {
  */
 #define CMD_PUSH_GIMBAL_INFO           (0X01u)
 typedef struct {
-  uint8_t mode;
-  int16_t pitch_ecd_angle;
+  // uint8_t mode;
+  // int16_t pitch_ecd_angle;
   int16_t yaw_ecd_angle;
   int16_t pitch_gyro_angle;
   int16_t yaw_gyro_angle;
-  int16_t yaw_rate;
-  int16_t pitch_rate;
+  // int16_t yaw_rate;
+  // int16_t pitch_rate;
 } cmd_gimbal_info;
 
 /*
