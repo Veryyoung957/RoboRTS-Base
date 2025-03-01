@@ -26,50 +26,50 @@ RefereeSystem::RefereeSystem(std::shared_ptr<roborts_sdk::Handle> handle) :
 void RefereeSystem::SDK_Init() {
   /**  Game Related  **/
   handle_->CreateSubscriber<roborts_sdk::cmd_game_status>(REFEREE_GAME_CMD_SET, CMD_GAME_STATUS,
-                                                         CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
+                                                         CHASSIS_ADDRESS, MANIFOLD1_ADDRESS,
                                                          std::bind(&RefereeSystem::GameStatusCallback,
                                                                    this,
                                                                    std::placeholders::_1));
   handle_->CreateSubscriber<roborts_sdk::cmd_game_result>(REFEREE_GAME_CMD_SET, CMD_GAME_RESULT,
-                                                          CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
+                                                          CHASSIS_ADDRESS, MANIFOLD1_ADDRESS,
                                                           std::bind(&RefereeSystem::GameResultCallback,
                                                                     this,
                                                                     std::placeholders::_1));
   handle_->CreateSubscriber<roborts_sdk::cmd_game_robot_HP>(REFEREE_GAME_CMD_SET, CMD_GAME_ROBOT_HP,
-                                                                   CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
+                                                                   CHASSIS_ADDRESS, MANIFOLD1_ADDRESS,
                                                                    std::bind(&RefereeSystem::GameRobotHPCallback,
                                                                              this,
                                                                              std::placeholders::_1));
   handle_->CreateSubscriber<roborts_sdk::cmd_game_event>(REFEREE_GAME_CMD_SET, CMD_GAME_EVENT,
-                                                         CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
+                                                         CHASSIS_ADDRESS, MANIFOLD1_ADDRESS,
                                                          std::bind(&RefereeSystem::GameEventCallback,
                                                                    this,
                                                                    std::placeholders::_1));
 
   /** Robot Related **/
   handle_->CreateSubscriber<roborts_sdk::cmd_game_robot_status>(REFEREE_ROBOT_CMD_SET, CMD_ROBOT_STATUS,
-                                                               CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
+                                                               CHASSIS_ADDRESS, MANIFOLD1_ADDRESS,
                                                                std::bind(&RefereeSystem::RobotStatusCallback,
                                                                          this,
                                                                          std::placeholders::_1));
   handle_->CreateSubscriber<roborts_sdk::cmd_power_heat_data>(REFEREE_ROBOT_CMD_SET, CMD_ROBOT_POWER_HEAT,
-                                                              CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
+                                                              CHASSIS_ADDRESS, MANIFOLD1_ADDRESS,
                                                               std::bind(&RefereeSystem::RobotHeatCallback,
                                                                         this,
                                                                         std::placeholders::_1));
   handle_->CreateSubscriber<roborts_sdk::cmd_robot_hurt>(REFEREE_ROBOT_CMD_SET, CMD_ROBOT_HURT,
-                                                         CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
+                                                         CHASSIS_ADDRESS, MANIFOLD1_ADDRESS,
                                                          std::bind(&RefereeSystem::RobotDamageCallback,
                                                                    this,
                                                                    std::placeholders::_1));
   handle_->CreateSubscriber<roborts_sdk::cmd_shoot_data>(REFEREE_ROBOT_CMD_SET, CMD_ROBOT_SHOOT,
-                                                         CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
+                                                         CHASSIS_ADDRESS, MANIFOLD1_ADDRESS,
                                                          std::bind(&RefereeSystem::RobotShootCallback,
                                                                    this,
                                                                    std::placeholders::_1));
 
   handle_->CreateSubscriber<roborts_sdk::sentry_info>(REFEREE_ROBOT_CMD_SET, SENTEY_INFO,
-                                                         CHASSIS_ADDRESS, MANIFOLD2_ADDRESS,
+                                                         CHASSIS_ADDRESS, MANIFOLD1_ADDRESS,
                                                          std::bind(&RefereeSystem::RobotSentryCallback,
                                                                    this,
                                                                    std::placeholders::_1));
@@ -95,11 +95,12 @@ void RefereeSystem::ROS_Init() {
 }
 
 void RefereeSystem::GameStatusCallback(const std::shared_ptr<roborts_sdk::cmd_game_status> raw_game_status){
+  RCLCPP_INFO(this->get_logger(),"Access GameStatusCallback");
   roborts_msgs::msg::GameStatus game_status;
-  assert(raw_game_status->game_type == 3);
   game_status.game_status    = raw_game_status->game_progress;
   game_status.remaining_time = raw_game_status->stage_remain_time;
   ros_game_status_pub_->publish(game_status);
+  std::cout<<"into gamestatus";
 }
 
 void RefereeSystem::GameResultCallback(const std::shared_ptr<roborts_sdk::cmd_game_result> raw_game_result){
@@ -110,10 +111,10 @@ void RefereeSystem::GameResultCallback(const std::shared_ptr<roborts_sdk::cmd_ga
 
 void RefereeSystem::GameRobotHPCallback(const std::shared_ptr<roborts_sdk::cmd_game_robot_HP> raw_game_robot_hp){
   roborts_msgs::msg::GameRobotHP game_robot_hp;
-  game_robot_hp.red1  = raw_game_robot_hp->red_1_robot_HP;
-  game_robot_hp.red2  = raw_game_robot_hp->red_2_robot_HP;
-  game_robot_hp.blue1 = raw_game_robot_hp->blue_1_robot_HP;
-  game_robot_hp.blue2 = raw_game_robot_hp->blue_2_robot_HP;
+  game_robot_hp.red_1_robot_hp  = raw_game_robot_hp->red_1_robot_HP;
+  game_robot_hp.red_2_robot_hp  = raw_game_robot_hp->red_2_robot_HP;
+  game_robot_hp.blue_1_robot_hp = raw_game_robot_hp->blue_1_robot_HP;
+  game_robot_hp.blue_2_robot_hp = raw_game_robot_hp->blue_2_robot_HP;
   ros_game_robot_hp_pub_->publish(game_robot_hp);
 }
 
