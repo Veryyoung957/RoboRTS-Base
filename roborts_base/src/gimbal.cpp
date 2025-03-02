@@ -139,23 +139,23 @@ namespace roborts_base
     timestamp_offset_ = this->get_parameter("timestamp_offset").as_double();
     t.header.stamp = this->now() + rclcpp::Duration::from_seconds(timestamp_offset_);
     gimbal_tf_.header.frame_id = "base_link";
-    gimbal_tf_.child_frame_id = "gimbal";
+    gimbal_tf_.child_frame_id = "gimbal_link";
     t.header.frame_id = "odom";
-    t.child_frame_id = "gimbal_link";
+    t.child_frame_id = "aim_link";
   }
 
   void Gimbal::GimbalInfoCallback(const std::shared_ptr<roborts_sdk::cmd_gimbal_info> gimbal_info)
   {
 
     rclcpp::Time current_time = this->get_clock()->now();
-    // tf2::Quaternion q_1;
-    // q_1.setRPY(0.0, gimbal_info->pitch_ecd_angle / 1800.0 * M_PI, gimbal_info->yaw_ecd_angle / 1800.0 * M_PI);
-    //geometry_msgs::msg::Quaternion q = tf2::toMsg(q);
+    tf2::Quaternion q_1;
+    q_1.setRPY(0.0, 0.0, gimbal_info->yaw_ecd_angle / 1800.0 * M_PI);
+    geometry_msgs::msg::Quaternion q = tf2::toMsg(q);
     gimbal_tf_.header.stamp = current_time;
-    // gimbal_tf_.transform.rotation = tf2::toMsg(q_1);                            
+    gimbal_tf_.transform.rotation = tf2::toMsg(q_1);                            
     gimbal_tf_.transform.translation.x = 0;
     gimbal_tf_.transform.translation.y = 0;
-    gimbal_tf_.transform.translation.z = 0.65;
+    gimbal_tf_.transform.translation.z = 0.35;
     tf_broadcaster_->sendTransform(gimbal_tf_);
     tf2::Quaternion q_2;
     q_2.setRPY(0.0, gimbal_info->pitch_gyro_angle / 1800.0 * M_PI, gimbal_info->yaw_gyro_angle/ 1800.0 * M_PI);
