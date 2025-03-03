@@ -27,6 +27,7 @@
 #include <nav_msgs/msg/odometry.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist.hpp>
+#include <rm_decision_interfaces/msg/robot_control.hpp>
 
 //#include "roborts_msgs/msg/twist_accel.hpp"
 

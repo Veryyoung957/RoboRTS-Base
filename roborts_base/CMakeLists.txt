@@ -26,6 +26,7 @@ find_package(Glog REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(rm_interfaces REQUIRED)
+find_package(rm_decision_interfaces REQUIRED)
 # Include subdirectory
 # Declare a ROS 2 executable
 add_executable(roborts_base_node
@@ -56,6 +57,7 @@ ament_target_dependencies(roborts_base_node
   std_srvs
   visualization_msgs
   rm_interfaces
+  rm_decision_interfaces
 )
 
 add_dependencies(roborts_base_node
@@ -72,6 +74,7 @@ target_include_directories(roborts_base_node PUBLIC
   ${std_srvs_INCLUDE_DIRS}
   ${visualization_msgs_INCLUDE_DIRS}
   ${rm_interfaces_INCLUDE_DIRS}
+  ${rm_decision_interfaces}
   roborts_sdk/include
 )
 # ROS 2 exports and installations

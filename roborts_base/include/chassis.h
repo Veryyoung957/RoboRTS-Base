@@ -22,6 +22,8 @@
 #include "module.h"
 #include "utils/factory.h"
 
+#define GIMBAL_SCAN_V_PITCH 10
+#define GIMBAL_SCAN_V_YAW 10
 namespace roborts_base {
 /**
  * @brief ROS API for chassis module
@@ -68,6 +70,8 @@ class Chassis: public Module{
    */
   void ChassisSpeedCtrlCallback(const geometry_msgs::msg::Twist::ConstPtr &vel);
 
+  void ChassisSpeedWCtrlCallback(const rm_decision_interfaces::msg::RobotControl::ConstPtr &msg);
+  void ChassisSpeedXYCtrlCallback(const geometry_msgs::msg::Twist::ConstPtr &vel);
   /**
    * @brief Chassis speed and acceleration control callback in ROS
    * @param vel_acc Chassis speed and acceleration control data
@@ -85,6 +89,9 @@ class Chassis: public Module{
 
   //! sdk publisher for chassis speed control
   std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_chassis_speed>> chassis_speed_pub_;
+  std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_chassis_speed_w>> chassis_speed_w_pub_;
+  std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_chassis_speed_xy>> chassis_speed_xy_pub_;
+  std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_gimbal_vel>> chassis_speed_vel_pub_;
   //! sdk publisher for chassis speed and acceleration control
   std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_chassis_spd_acc>> chassis_spd_acc_pub_;
 
@@ -92,6 +99,8 @@ class Chassis: public Module{
   //rclcpp::NodeHandle ros_nh_;
   //! ros subscriber for speed control
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr ros_sub_cmd_chassis_vel_;
+  rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr ros_sub_cmd_chassis_xy_;
+  rclcpp::Subscription<rm_decision_interfaces::msg::RobotControl>::SharedPtr ros_sub_cmd_chassis_w_;
   //! ros subscriber for chassis speed and acceleration control
   //rclcpp::Subscriber ros_sub_cmd_chassis_vel_acc_;
   //! ros publisher for odometry information

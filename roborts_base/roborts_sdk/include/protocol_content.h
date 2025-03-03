@@ -170,6 +170,16 @@ typedef struct {
   int16_t rotate_y_offset;
 } cmd_chassis_spd_acc;
 
+#define CMD_SET_CHASSIS_SPEED_XY          (0X06u)
+typedef struct {
+  int16_t vx;
+  int16_t vy;
+} cmd_chassis_speed_xy;
+
+#define CMD_SET_CHASSIS_SPEED_W          (0X07u)
+typedef struct {
+  int16_t vw;
+} cmd_chassis_speed_w;
 /*-----------------------------GIMBAL_CMD_SET---- 0x03 ---------------------*/
 /*
  *  cmd_set:  GIMBAL_CMD_SET
@@ -318,12 +328,19 @@ typedef struct
   float aim_z;
 }cmd_aim_position;
 
-
-#define CMD_TRACKER           (0x0a)
+#define CMD_TRACKER           (0x0Au)
 typedef struct
 {
   bool tracking;
 }cmd_tracker;
+
+#define CMD_SET_GIMBAL_VEL           (0x0Bu)
+typedef struct
+{
+  bool stop_gimbal_scan;
+  int16_t pitch_v;
+  int16_t yaw_v;
+}cmd_gimbal_vel;
 /*------------------------COMPATIBLE_CMD_SET---- 0x04 -------------------*/
 #define CMD_RC_DATA_FORWARD            (0X01u)
 

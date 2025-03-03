@@ -60,6 +60,13 @@ void Chassis::SDK_Init(){
 
   heartbeat_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_heartbeat>(UNIVERSAL_CMD_SET, CMD_HEARTBEAT,
                                                                         MANIFOLD1_ADDRESS, CHASSIS_ADDRESS);
+
+  chassis_speed_w_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_chassis_speed_w>(CHASSIS_CMD_SET, CMD_SET_CHASSIS_SPEED_W,
+                                                                                MANIFOLD1_ADDRESS, CHASSIS_ADDRESS);
+  chassis_speed_xy_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_chassis_speed_xy>(CHASSIS_CMD_SET, CMD_SET_CHASSIS_SPEED_XY,
+                                                                                MANIFOLD1_ADDRESS, CHASSIS_ADDRESS);
+  chassis_speed_vel_pub_ = handle_->CreatePublisher<roborts_sdk::cmd_gimbal_vel>(CHASSIS_CMD_SET, CMD_SET_GIMBAL_VEL,
+                                                                                MANIFOLD1_ADDRESS, CHASSIS_ADDRESS);
   // heartbeat_thread_ = std::thread([this]{
   //                                   roborts_sdk::cmd_heartbeat heartbeat;
   //                                   heartbeat.heartbeat=0;
@@ -77,6 +84,10 @@ void Chassis::ROS_Init(){
   // Subscriber
   ros_sub_cmd_chassis_vel_ = this->create_subscription<geometry_msgs::msg::Twist>(
       "cmd_vel", rclcpp::SystemDefaultsQoS(), std::bind(&Chassis::ChassisSpeedCtrlCallback, this, std::placeholders::_1));
+  ros_sub_cmd_chassis_xy_ = this->create_subscription<geometry_msgs::msg::Twist>(
+      "cmd_vel", rclcpp::SystemDefaultsQoS(), std::bind(&Chassis::ChassisSpeedXYCtrlCallback, this, std::placeholders::_1));
+  ros_sub_cmd_chassis_w_ = this->create_subscription<rm_decision_interfaces::msg::RobotControl>(
+      "robot_control", rclcpp::SystemDefaultsQoS(), std::bind(&Chassis::ChassisSpeedWCtrlCallback, this, std::placeholders::_1));
   tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
   // ros_sub_cmd_chassis_vel_acc_ = this->create_subscription<geometry_msgs::msg::Twist>(
   //     "cmd_vel_acc", rclcpp::SystemDefaultsQoS(), std::bind(&Chassis::ChassisSpeedAccCtrlCallback, this, std::placeholders::_1));
@@ -138,6 +149,25 @@ void Chassis::ChassisSpeedCtrlCallback(const geometry_msgs::msg::Twist::ConstPtr
   chassis_speed_pub_->Publish(chassis_speed);
 }
 
+void Chassis::ChassisSpeedWCtrlCallback(const rm_decision_interfaces::msg::RobotControl::ConstPtr &msg){
+  roborts_sdk::cmd_chassis_speed_w chassis_speed_w;
+  roborts_sdk::cmd_gimbal_vel cmd_gimbal_vel;
+  chassis_speed_w.vw = msg->chassis_spin_vel;
+  chassis_speed_w_pub_->Publish(chassis_speed_w);
+
+  if(cmd_gimbal_vel.stop_gimbal_scan == 0){
+  cmd_gimbal_vel.pitch_v = GIMBAL_SCAN_V_PITCH;
+  cmd_gimbal_vel.yaw_v = GIMBAL_SCAN_V_YAW;
+  chassis_speed_vel_pub_->Publish(cmd_gimbal_vel);
+  }
+}
+
+void Chassis::ChassisSpeedXYCtrlCallback(const geometry_msgs::msg::Twist::ConstPtr &vel){
+  roborts_sdk::cmd_chassis_speed_xy chassis_speed_xy;
+  chassis_speed_xy.vx = vel->linear.x*1000;
+  chassis_speed_xy.vy = vel->linear.y*1000;
+  chassis_speed_xy_pub_->Publish(chassis_speed_xy);
+}
 // void Chassis::ChassisSpeedAccCtrlCallback(const roborts_msgs::msg::TwistAccel::ConstPtr &vel_acc){
 //   roborts_sdk::cmd_chassis_spd_acc chassis_spd_acc;
 //   chassis_spd_acc.vx = vel_acc->twist.linear.x*1000;

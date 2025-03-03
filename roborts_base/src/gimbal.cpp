@@ -150,7 +150,7 @@ namespace roborts_base
     rclcpp::Time current_time = this->get_clock()->now();
     tf2::Quaternion q_1;
     q_1.setRPY(0.0, 0.0, gimbal_info->yaw_ecd_angle / 1800.0 * M_PI);
-    geometry_msgs::msg::Quaternion q = tf2::toMsg(q);
+    // geometry_msgs::msg::Quaternion q_1 = tf2::toMsg(q_);
     gimbal_tf_.header.stamp = current_time;
     gimbal_tf_.transform.rotation = tf2::toMsg(q_1);                            
     gimbal_tf_.transform.translation.x = 0;
