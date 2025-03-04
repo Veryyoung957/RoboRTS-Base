@@ -152,14 +152,14 @@ void Chassis::ChassisSpeedCtrlCallback(const geometry_msgs::msg::Twist::ConstPtr
 void Chassis::ChassisSpeedWCtrlCallback(const rm_decision_interfaces::msg::RobotControl::ConstPtr &msg){
   roborts_sdk::cmd_chassis_speed_w chassis_speed_w;
   roborts_sdk::cmd_gimbal_vel cmd_gimbal_vel;
-  chassis_speed_w.vw = msg->chassis_spin_vel;
+  chassis_speed_w.vw = msg->chassis_spin_vel*10;
   chassis_speed_w_pub_->Publish(chassis_speed_w);
 
-  if(cmd_gimbal_vel.stop_gimbal_scan == 0){
-  cmd_gimbal_vel.pitch_v = GIMBAL_SCAN_V_PITCH;
-  cmd_gimbal_vel.yaw_v = GIMBAL_SCAN_V_YAW;
+  cmd_gimbal_vel.stop_gimbal_scan = msg->stop_gimbal_scan;
+  cmd_gimbal_vel.pitch_v = GIMBAL_SCAN_V_PITCH * 10;
+  cmd_gimbal_vel.yaw_v = GIMBAL_SCAN_V_YAW * 10;
   chassis_speed_vel_pub_->Publish(cmd_gimbal_vel);
-  }
+  
 }
 
 void Chassis::ChassisSpeedXYCtrlCallback(const geometry_msgs::msg::Twist::ConstPtr &vel){
