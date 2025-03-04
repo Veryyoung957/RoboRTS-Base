@@ -116,6 +116,8 @@ class Gimbal: public Module {
   std::shared_ptr<roborts_sdk::Subscription<roborts_sdk::cmd_rpy>>            rpy_cmd_;
   std::shared_ptr<roborts_sdk::Subscription<roborts_sdk::cmd_aim_position>>       aim_position_cmd_;
 
+  std::shared_ptr<roborts_sdk::Publisher<roborts_sdk::cmd_gimbal_vel>> gimbal_speed_vel_pub_;
+
 
 
   //! ros node handler

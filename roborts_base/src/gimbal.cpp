@@ -208,6 +208,7 @@ namespace roborts_base
 
     roborts_sdk::cmd_gimbal_cmd gimbal_cmd;
     roborts_sdk::cmd_shoot_info gimbal_shoot;
+    roborts_sdk::cmd_gimbal_vel cmd_gimbal_vel;
     uint16_t default_freq = 1500;
 
     gimbal_cmd.pitch = msg->pitch * 10;
@@ -217,19 +218,15 @@ namespace roborts_base
     gimbal_cmd.distance = msg->distance * 1000;
     gimbal_cmd.fire_advice = msg->fire_advice;
 
-    if(gimbal_cmd.distance<0 && Gimbal::shoot_state!=roborts_sdk::SHOOT_STOP){
-      gimbal_shoot.shoot_cmd = roborts_sdk::SHOOT_STOP;
-      gimbal_shoot.shoot_add_num = 0;
-      gimbal_shoot.shoot_freq = 0;
-      gimbal_shoot_pub_->Publish(gimbal_shoot);
-      Gimbal::shoot_state=roborts_sdk::SHOOT_STOP;
+    if(gimbal_cmd.distance<0){
+      cmd_gimbal_vel.stop_gimbal_scan = true;
+      cmd_gimbal_vel.pitch_v = 20 * 10;
+      cmd_gimbal_vel.yaw_v = -100 * 10;
+      gimbal_speed_vel_pub_->Publish(cmd_gimbal_vel);
     }
     else{
-      gimbal_shoot.shoot_cmd = roborts_sdk::SHOOT_CONTINUOUS;
-      gimbal_shoot.shoot_add_num = 1;
-      gimbal_shoot.shoot_freq = default_freq;
-      gimbal_shoot_pub_->Publish(gimbal_shoot);
-      Gimbal::shoot_state=roborts_sdk::SHOOT_CONTINUOUS;
+      cmd_gimbal_vel.stop_gimbal_scan = false;
+      gimbal_speed_vel_pub_->Publish(cmd_gimbal_vel);
     }
 
     gimbal_cmd_pub_->Publish(gimbal_cmd);
