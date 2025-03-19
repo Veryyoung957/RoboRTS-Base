@@ -142,6 +142,7 @@ class Gimbal: public Module {
   rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr    aim_position_pub_ ;
   rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr    latency_pub_ ;
   rclcpp::Publisher<rm_interfaces::msg::Target>::SharedPtr    another_target_pub_ ;
+  rclcpp::Publisher<roborts_msgs::msg::Rpy>::SharedPtr    recive_pub_ ;
   
 
  

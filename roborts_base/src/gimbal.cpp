@@ -113,6 +113,8 @@ namespace roborts_base
     aim_position_pub_ = this->create_publisher<visualization_msgs::msg::Marker>("/aiming_point", 10);
     latency_pub_ = this->create_publisher<std_msgs::msg::Float64>("/latency", 10);
     another_target_pub_ = this->create_publisher<rm_interfaces::msg::Target>("/another_target", 10);
+    recive_pub_ = this->create_publisher<roborts_msgs::msg::Rpy>("/recive_angle_", 10);
+
 
     timestamp_offset_ = this->declare_parameter("timestamp_offset", 0.0);
 
@@ -162,6 +164,11 @@ namespace roborts_base
     t.header.stamp = current_time;
     t.transform.rotation = tf2::toMsg(q_2);
     tf_broadcaster_->sendTransform(t);
+
+    roborts_msgs::msg::Rpy cmd_rpy;
+    cmd_rpy.pitch = gimbal_info->pitch_gyro_angle / 1800.0 * M_PI;
+    cmd_rpy.yaw = gimbal_info->yaw_gyro_angle/ 1800.0 * M_PI;
+    recive_pub_->publish(cmd_rpy);
   }
 
   void Gimbal::GimbalTFCallback(const std::shared_ptr<roborts_sdk::cmd_rpy> gimbal_tf)
